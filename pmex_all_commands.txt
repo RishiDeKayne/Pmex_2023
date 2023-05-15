@@ -1,8 +1,18 @@
 #De-Kayne 2023
 
-#Raw data collation
+#####################################################################################
+#LOGIN
+
+#Kamiak
 ssh rishi.de-kayne@kamiak.wsu.edu
 
+#Hummingbird
+ssh rdekayne@hb.ucsc.edu
+
+#####################################################################################
+#IMPORTANT DIRECTORIES
+
+#Raw data collation
 #sample fastq 
 cd /data/kelley/projects/poeciliids_2022/
 
@@ -11,4 +21,6 @@ cd /data/kelley/projects/kerry/pmex_evo_rates_aa_convergence
 
 #genomes
 /data/kelley/projects/kerry/reference_genomes
+
+#####################################################################################
 
