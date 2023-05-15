@@ -1,4 +1,7 @@
 #De-Kayne 2023
 
 #Raw data collation
-rishi.de-kayne@kamiak.wsu.edu
+ssh rishi.de-kayne@kamiak.wsu.edu
+
+cd /data/kelley/projects/kerry/pmex_evo_rates_aa_convergence
+
