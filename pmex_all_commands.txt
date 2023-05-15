@@ -3,5 +3,12 @@
 #Raw data collation
 ssh rishi.de-kayne@kamiak.wsu.edu
 
+#sample fastq 
+cd /data/kelley/projects/poeciliids_2022/
+
+#data
 cd /data/kelley/projects/kerry/pmex_evo_rates_aa_convergence
+
+#genomes
+/data/kelley/projects/kerry/reference_genomes
 
