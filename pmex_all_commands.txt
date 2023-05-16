@@ -23,7 +23,9 @@ cd /data/kelley/projects/kerry/pmex_evo_rates_aa_convergence
 /data/kelley/projects/kerry/reference_genomes
 
 #####################################################################################
-
+#move fastq files to hummingbird
+scp -r rishi.de-kayne@kamiak.wsu.edu:/data/kelley/projects/poeciliids_2022/* rdekayne@hbfeeder.ucsc.edu:/hb/home
+  
 #################
 #     01 MULTIQC
 #################
