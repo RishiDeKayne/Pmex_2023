@@ -53,7 +53,7 @@ rm samples.txt
 
 cat sample_list.txt | while read sample
 do
-fastp -i /hb/home/rdekayne/data/${sample}_R1_001.fastq.gz -I /hb/home/rdekayne/data/${sample}_R2_001.fastq.gz -o /hb/home/rdekayne/01_H2S_QC/output_QC/${sample}_R1.out.fastq.gz -O /hb/home/rdekayne/01_H2S_QC/output_QC/${sample}_R2.out.fastq.gz && touch /hb/home/rdekayne/01_H2S_QC/output_QC/${sample}.done
+fastp -i /hb/home/rdekayne/data/${sample}_R1_001.fastq.gz -I /hb/home/rdekayne/data/${sample}_R2_001.fastq.gz -o /hb/home/rdekayne/01_H2S_QC/output_QC/${sample}_R1.out.fastq.gz -O /hb/home/rdekayne/01_H2S_QC/output_QC/${sample}_R2.out.fastq.gz -h ${sample}.html && touch /hb/home/rdekayne/01_H2S_QC/output_QC/${sample}.done
 done
 
 touch all_samples.done
