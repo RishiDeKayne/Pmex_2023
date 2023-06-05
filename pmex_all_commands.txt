@@ -62,6 +62,9 @@ touch all_samples.done
 #################
 #     02 MAPPING
 #################
+# 02_H2S_mapping.sh
+
+module load hb hb-gnu bwakit/bwa-0.7.15
 
 
 #################
