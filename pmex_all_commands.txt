@@ -29,8 +29,34 @@ scp -r rishi.de-kayne@kamiak.wsu.edu:/data/kelley/projects/poeciliids_2022/* rde
 #################
 #     01 MULTIQC
 #################
-# example
-# fastp -i in.R1.fq.gz -I in.R2.fq.gz -o out.R1.fq.gz -O out.R2.fq.gz
+# 01_H2S_QC.sh 
+
+#!/bin/bash
+#SBATCH --job-name=fastqQC
+#SBATCH --time=0-12:00:00 # Wall clock time limit in Days-Hours:min:seconds
+#SBATCH --partition=128x24
+#SBATCH --output=QC.out # output file
+#SBATCH --error=QC.err # error file
+#SBATCH --ntasks=1 # Run 1 job
+#SBATCH --ntasks-per-node=1 # One task per computer
+#SBATCH --cpus-per-task=2 # 2 CPUs per job
+#SBATCH --mem=4GB # Memory limit of 4GB
+
+module load hb hb-gnu fastq
+
+cd /hb/home/rdekayne/01_H2S_QC
+ls ../data/*.fastq.gz > samples.txt
+sed -i 's/\.\.\/data\///g' samples.txt
+sed -i 's/_R1_001\.fastq\.gz//g' samples.txt
+grep -v "_R2_" samples.txt > sample_list.txt
+rm samples.txt
+
+cat sample_list.txt | while read sample
+do
+fastp -i /hb/home/rdekayne/data/${sample}_R1_001.fastq.gz -I /hb/home/rdekayne/data/${sample}_R2_001.fastq.gz -o /hb/home/rdekayne/01_H2S_QC/output_QC/${sample}_R1.out.fastq.gz -O /hb/home/rdekayne/01_H2S_QC/output_QC/${sample}_R2.out.fastq.gz && touch /hb/home/rdekayne/01_H2S_QC/output_QC/${sample}.done
+done
+
+touch all_samples.done
 
 
 #################
