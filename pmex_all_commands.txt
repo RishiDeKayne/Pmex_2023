@@ -25,7 +25,9 @@ cd /data/kelley/projects/kerry/pmex_evo_rates_aa_convergence
 #####################################################################################
 #move fastq files to hummingbird - log into hummingbird and run
 scp -r rishi.de-kayne@kamiak.wsu.edu:/data/kelley/projects/poeciliids_2022/* .
-  
+scp -r rishi.de-kayne@kamiak.wsu.edu:/data/kelley/projects/anthonys_projects/concatenated_whole_genome_data/sga_preqc/*.gz .
+scp -r rishi.de-kayne@kamiak.wsu.edu:/data/kelley/projects/kerry/reference_genomes/GCF_001443325.1_P_mexicana* .
+
 #################
 #     01 MULTIQC
 #################
