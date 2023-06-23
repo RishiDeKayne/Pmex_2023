@@ -92,6 +92,10 @@ cd /hb/home/rdekayne/ref_genomes
 /hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2 index ./GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna
 touch ./indices.done
 
+#https://github.com/KorfLab/Assemblathon/blob/master/assemblathon_stats.pl
+#http://korflab.ucdavis.edu/Unix_and_Perl/FAlite.pm
+
+
 #################
 #     03 MAPPING
 #################
