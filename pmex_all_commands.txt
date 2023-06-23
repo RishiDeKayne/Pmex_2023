@@ -82,8 +82,8 @@ touch all_samples.done
 #SBATCH --error=index.err # error file
 #SBATCH --ntasks=1 # Run 1 job
 #SBATCH --ntasks-per-node=1 # One task per computer
-#SBATCH --cpus-per-task=2 # 2 CPUs per job
-#SBATCH --mem=8GB 
+#SBATCH --cpus-per-task=1 # 2 CPUs per job
+#SBATCH --mem=64GB 
 
 module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1
 
