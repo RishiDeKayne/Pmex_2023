@@ -62,7 +62,7 @@ touch all_samples.done
 
 
 #################
-#     02 MAPPING
+#     02 REFERENCES
 #################
 #get references
 #hellerii - https://www.ncbi.nlm.nih.gov/genome/15325
@@ -72,7 +72,30 @@ touch all_samples.done
 #module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1
 #/hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2
 
-# 02.1_H2S_mapping.sh
+# 02_genome_indexing.sh
+
+#!/bin/bash
+#SBATCH --job-name=genome_index
+#SBATCH --time=0-4:00:00 # Wall clock time limit in Days-Hours:min:seconds
+#SBATCH --partition=128x24
+#SBATCH --output=index.out # output file
+#SBATCH --error=index.err # error file
+#SBATCH --ntasks=1 # Run 1 job
+#SBATCH --ntasks-per-node=1 # One task per computer
+#SBATCH --cpus-per-task=2 # 2 CPUs per job
+#SBATCH --mem=8GB 
+
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1
+
+cd /hb/home/rdekayne/ref_genomes
+/hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2 index ./GCF_000633615.1_Guppy_female_1.0_MT_genomic.fna
+/hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2 index ./GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna
+touch ./indices.done
+
+#################
+#     03 MAPPING
+#################
+# 03.1_H2S_mapping.sh
 
 #!/bin/bash
 ## load modules 
