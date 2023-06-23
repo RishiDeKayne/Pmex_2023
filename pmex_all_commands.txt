@@ -92,9 +92,27 @@ cd /hb/home/rdekayne/ref_genomes
 /hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2 index ./GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna
 touch ./indices.done
 
+#calculate assembly stats
 #https://github.com/KorfLab/Assemblathon/blob/master/assemblathon_stats.pl
 #http://korflab.ucdavis.edu/Unix_and_Perl/FAlite.pm
 
+# 02_genome_stats.sh
+
+#!/bin/bash
+#SBATCH --job-name=genome_stats
+#SBATCH --time=0-4:00:00 # Wall clock time limit in Days-Hours:min:seconds
+#SBATCH --partition=128x24
+#SBATCH --output=stats.out # output file
+#SBATCH --error=stats.err # error file
+#SBATCH --ntasks=1 
+#SBATCH --ntasks-per-node=1 
+#SBATCH --cpus-per-task=1 
+#SBATCH --mem=8GB 
+
+perl -I /hb/home/rdekayne/ref_genomes/ assemblathon_stats.pl ./GCF_000633615.1_Guppy_female_1.0_MT_genomic.fna
+perl -I /hb/home/rdekayne/ref_genomes/ assemblathon_stats.pl ./GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna
+
+touch stats.done
 
 #################
 #     03 MAPPING
@@ -123,9 +141,6 @@ short=$name
 bwa mem -t ${proc} -r 1 -M ${reference} ${input}/${name}_R1.polyg.n.fastq.gz ${input}/${name}_R2.polyg.n.fastq.gz > ${TMPDIR}/${short}_FR_n.sam
 sambamba view -S ${TMPDIR}/${short}_FR_n.sam -f bam -o ${out}/${short}_FR_n.bam -t ${proc} -l 9
 
-#merged reads
-bwa mem -t ${proc} -r 1 -M ${reference} ${input}/${name}_mr.polyg.n.fastq.gz > ${TMPDIR}/${short}_M_n.sam
-sambamba view -S ${TMPDIR}/${short}_M_n.sam -f bam -o ${out}/${short}_M_n.bam -t ${proc} -l 9
 
 #02.2_H2S_processing.sh
 #!/bin/bash
