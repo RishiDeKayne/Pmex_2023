@@ -10,7 +10,7 @@ ssh rishi.de-kayne@kamiak.wsu.edu
 ssh rdekayne@hb.ucsc.edu
 
 #####################################################################################
-#IMPORTANT DIRECTORIES
+#IMPORTANT DIRECTORIES from kamiak
 
 #Raw data collation
 #sample fastq 
@@ -64,6 +64,14 @@ touch all_samples.done
 #################
 #     02 MAPPING
 #################
+#get references
+#hellerii - https://www.ncbi.nlm.nih.gov/genome/15325
+#guppy - https://www.ncbi.nlm.nih.gov/genome/23338
+
+#index 
+#module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1
+#/hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2
+
 # 02.1_H2S_mapping.sh
 
 #!/bin/bash
