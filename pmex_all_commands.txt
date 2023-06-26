@@ -119,6 +119,26 @@ touch stats.done
 #################
 # 03.1_H2S_mapping.sh
 
+# define jobindex
+ind=${LSB_JOBINDEX}
+# find individual name corresponding with the job index number in a file I've called fastq.individuals 
+# (can also be filenames)
+indiv_name=$(cat /cluster/scratch/rdekayne/Chapter3_RAW/fastq.individuals | sed -n ${ind}p)
+
+# call fastqc
+fastqc -t 1 -o /cluster/scratch/rdekayne/Chapter3_RAW/fullfastqc/ --noextract -d /cluster/work/gdc/init/p659/data/ ${indiv_name}
+
+
+
+
+
+
+
+
+
+
+
+
 #!/bin/bash
 ## load modules 
 module load hb hb-gnu bwakit/bwa-0.7.15
