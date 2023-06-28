@@ -133,13 +133,17 @@ sed -i 's/_R1.out\.fastq\.gz//g' indiv.list.txt
 #SBATCH --cpus-per-task=24
 #SBATCH --mem=16GB 
 
-module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba
 
 ind=${SLURM_ARRAY_TASK_ID}
 indiv_name=$(cat /hb/home/rdekayne/01_H2S_QC/output_QC/test.indiv.list.txt | sed -n ${ind}p)
 
 # call bwa
-/hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2 mem -t 24 /hb/home/rdekayne/ref_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna /hb/home/rdekayne/01_H2S_QC/output_QC/${indiv_name}_R1.out.fastq.gz /hb/home/rdekayne/01_H2S_QC/output_QC/${indiv_name}_R2.out.fastq.gz > /hb/home/rdekayne/03_H2S_mapping/output.raw.sam
+/hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2 mem -t 24 /hb/home/rdekayne/ref_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna /hb/home/rdekayne/01_H2S_QC/output_QC/${indiv_name}_R1.out.fastq.gz /hb/home/rdekayne/01_H2S_QC/output_QC/${indiv_name}_R2.out.fastq.gz > /hb/home/rdekayne/03_H2S_mapping/temp_sam/output.${indiv_name}.raw.sam && touch ${indiv_name}.mapping1.done
+
+#run sambamba
+sambamba view -S /hb/home/rdekayne/03_H2S_mapping/temp_sam/output.${indiv_name}.raw.sam -f bam -o /hb/home/rdekayne/03_H2S_mapping/output/output.${indiv_name}.raw.bam -t 24 -l 9 && rm /hb/scratch/rdekayne/output.${indiv_name}.raw.sam && touch ${indiv_name}.mapping2.done
+
 
 #submit
 sbatch --array=1-2 03.1_H2S_mapping.sh
