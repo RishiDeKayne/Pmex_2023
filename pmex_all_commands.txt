@@ -117,19 +117,32 @@ touch stats.done
 #################
 #     03 MAPPING
 #################
+cd /hb/home/rdekayne/01_H2S_QC/output_QC
+ls *_R1.out.fastq.gz > indiv.list.txt 
+sed -i 's/_R1.out\.fastq\.gz//g' indiv.list.txt 
+
 # 03.1_H2S_mapping.sh
 
-# define jobindex
-ind=${LSB_JOBINDEX}
-# find individual name corresponding with the job index number in a file I've called fastq.individuals 
-# (can also be filenames)
-indiv_name=$(cat /cluster/scratch/rdekayne/Chapter3_RAW/fastq.individuals | sed -n ${ind}p)
+#!/bin/bash
+#SBATCH --job-name=mapping
+#SBATCH --time=0-12:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=mapping.%j.out # output file
+#SBATCH --error=mapping.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=24
+#SBATCH --mem=16GB 
 
-# call fastqc
-fastqc -t 1 -o /cluster/scratch/rdekayne/Chapter3_RAW/fullfastqc/ --noextract -d /cluster/work/gdc/init/p659/data/ ${indiv_name}
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1
 
+ind=${SLURM_ARRAY_TASK_ID}
+indiv_name=$(cat /hb/home/rdekayne/01_H2S_QC/output_QC/test.indiv.list.txt | sed -n ${ind}p)
 
+# call bwa
+/hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2 mem -t 24 /hb/home/rdekayne/ref_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna /hb/home/rdekayne/01_H2S_QC/output_QC/${indiv_name}_R1.out.fastq.gz /hb/home/rdekayne/01_H2S_QC/output_QC/${indiv_name}_R2.out.fastq.gz > /hb/home/rdekayne/03_H2S_mapping/output.raw.sam
 
+#submit
+sbatch --array=1-2 03.1_H2S_mapping.sh
 
 
 
