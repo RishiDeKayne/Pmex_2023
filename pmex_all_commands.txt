@@ -146,7 +146,7 @@ sambamba view -S /hb/home/rdekayne/03_H2S_mapping/temp_sam/output.${indiv_name}.
 
 
 #submit
-sbatch --array=1-2 03.1_H2S_mapping.sh
+sbatch --array=1-24 03.1_H2S_mapping.sh
 
 
 
