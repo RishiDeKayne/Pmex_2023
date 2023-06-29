@@ -145,72 +145,41 @@ indiv_name=$(cat /hb/home/rdekayne/01_H2S_QC/output_QC/test.indiv.list.txt | sed
 sambamba view -S /hb/home/rdekayne/03_H2S_mapping/temp_sam/output.${indiv_name}.raw.sam -f bam -o /hb/home/rdekayne/03_H2S_mapping/output/output.${indiv_name}.raw.bam -t 24 -l 9 && rm /hb/scratch/rdekayne/output.${indiv_name}.raw.sam && touch ${indiv_name}.mapping2.done
 
 
-#submit
+##submit
 sbatch --array=1-24 03.1_H2S_mapping.sh
 
-
-
-
-
-
-
-
+# 03.2_H2S_mapping_processing.sh
 
 #!/bin/bash
-## load modules 
-module load hb hb-gnu bwakit/bwa-0.7.15
+#SBATCH --job-name=mapping_processing
+#SBATCH --time=0-12:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=processing.%j.out # output file
+#SBATCH --error=processing.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=24
+#SBATCH --mem=50GB 
 
-module load gcc/4.8.2 gdc bwa/0.7.17 java/1.8.0_73 sambamba/0.6.8
-##number of processors used per job
-proc=20
-##Defining all the paths 
-reference="reference.fasta"
-input="/path/to/seqprep/output"
-out="/path/to/output"
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard
 
-#name of the individual that will be mapped (Filename must start with these Characters)
-ind=$LSB_JOBINDEX
-name="DF$ind"
-short=$name
+ind=${SLURM_ARRAY_TASK_ID}
+indiv_name=$(cat /hb/home/rdekayne/01_H2S_QC/output_QC/test.indiv.list.txt | sed -n ${ind}p)
 
-#BWA:
-#forward and reverse:
-bwa mem -t ${proc} -r 1 -M ${reference} ${input}/${name}_R1.polyg.n.fastq.gz ${input}/${name}_R2.polyg.n.fastq.gz > ${TMPDIR}/${short}_FR_n.sam
-sambamba view -S ${TMPDIR}/${short}_FR_n.sam -f bam -o ${out}/${short}_FR_n.bam -t ${proc} -l 9
+picard FixMateInformation I=/hb/home/rdekayne/03_H2S_mapping/output/output.${indiv_name}.raw.bam VALIDATION_STRINGENCY=LENIENT OUTPUT=/hb/home/rdekayne/03_H2S_mapping/temp_bam/${indiv_name}.raw.bam
 
+sambamba sort /hb/home/rdekayne/03_H2S_mapping/temp_bam/${indiv_name}.raw.bam -o /hb/home/rdekayne/03_H2S_mapping/temp_bam/${indiv_name}.sorted.bam -t 24 -m 50GB
 
-#02.2_H2S_processing.sh
-#!/bin/bash
+picard MarkDuplicates INPUT=/hb/home/rdekayne/03_H2S_mapping/temp_bam/${indiv_name}.sorted.bam OUTPUT=/hb/home/rdekayne/03_H2S_mapping/processed_bams/${indiv_name}.sorted.dup.hellerii.bam METRICS_FILE=/hb/home/rdekayne/03_H2S_mapping/processed_bams/${indiv_name}.sorted.dup.hellerii.txt VALIDATION_STRINGENCY=LENIENT MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1024
 
+sambamba index /hb/home/rdekayne/03_H2S_mapping/processed_bams/${indiv_name}.sorted.dup.hellerii.bam
 
-## load modules 
-module load gcc/4.8.2 gdc samtools/1.9 java/1.8.0_73 picard-tools/2.20.2 sambamba/0.6.8
+rm /hb/home/rdekayne/03_H2S_mapping/temp_bam/${indiv_name}.*
 
-#information for each individual, respectively each bam file
-ind=$LSB_JOBINDEX
-short="DF$ind"
-rg=$(echo "0$LSB_JOBINDEX")
-library=$( echo "library$short")
-lane=$( echo "1.$rg")
+touch ${indiv_name}.processing.done
 
-###Defining all the paths 
-input="/path/to/input/bam"
-output="/path/to/output/directory"
-proc=1
-##====================================================================================================
-#Forward and reverse
+##submit
+sbatch --array=1-1 03.2_H2S_mapping_processing.sh
 
-picard FixMateInformation I=${input}/${short}_FR_n.bam O=/dev/stdout VALIDATION_STRINGENCY=LENIENT | picard AddOrReplaceReadGroups I=/dev/stdin O=${TMPDIR}/${short}_int1_n.bam RGID=${lane} RGlb=${library} RGPL=illumina RGSM=${rg} RGPU=unit1  
-sambamba sort ${TMPDIR}/${short}_int1_n.bam -o ${TMPDIR}/${short}_FR_sorted_n.bam -t ${proc} -m 50GB --tmpdir ${TMPDIR}
-picard MarkDuplicates TMP_DIR=${TMPDIR} INPUT=${TMPDIR}/${short}_FR_sorted_n.bam OUTPUT=${output}/${short}_FR_sorted_dup_WFRef_nova.bam METRICS_FILE=${output}/${short}_FR_duplication_metrics_WFRef.txt VALIDATION_STRINGENCY=LENIENT MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1024
-sambamba index ${output}/${short}_FR_sorted_dup_WFRef_nova.bam
-rm ${TMPDIR}/*
-
-#Merged 
-picard FixMateInformation I=${input}/${short}_M_n.bam O=/dev/stdout VALIDATION_STRINGENCY=LENIENT | picard AddOrReplaceReadGroups I=/dev/stdin O=${TMPDIR}/${short}_M_read_group_n.bam RGID=${lane} RGlb=${library} RGPL=illumina RGSM=${rg} RGPU=unit1 VALIDATION_STRINGENCY=LENIENT
-sambamba sort ${TMPDIR}/${short}_M_read_group_n.bam -o ${TMPDIR}/${short}_M_sorted_n.bam -t ${proc} -m 50GB --tmpdir ${TMPDIR}
-picard MarkDuplicates TMP_DIR=${TMPDIR} INPUT=${TMPDIR}/${short}_M_sorted_n.bam OUTPUT=${output}/${short}_M_sorted_dup_WFRef_nova.bam METRICS_FILE=${output}/${short}_M_duplication_metrics_WFRef.txt VALIDATION_STRINGENCY=LENIENT MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1024
-sambamba index ${output}/${short}_M_sorted_dup_WFRef_nova.bam
 
 #################
 #     03 GENOTYPING + FILTERING
