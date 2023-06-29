@@ -178,8 +178,7 @@ rm /hb/home/rdekayne/03_H2S_mapping/temp_bam/${indiv_name}.*
 touch ${indiv_name}.processing.done
 
 ##submit
-sbatch --array=1-1 03.2_H2S_mapping_processing.sh
-sbatch --array=1-24%1 03.2_H2S_mapping_processing.sh
+sbatch --array=1-24%2 03.2_H2S_mapping_processing.sh
 
 
 #################
