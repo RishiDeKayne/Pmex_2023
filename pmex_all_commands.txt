@@ -136,13 +136,13 @@ sed -i 's/_R1.out\.fastq\.gz//g' indiv.list.txt
 module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba
 
 ind=${SLURM_ARRAY_TASK_ID}
-indiv_name=$(cat /hb/home/rdekayne/01_H2S_QC/output_QC/test.indiv.list.txt | sed -n ${ind}p)
+indiv_name=$(cat /hb/home/rdekayne/01_H2S_QC/output_QC/indiv.list.txt | sed -n ${ind}p)
 
 # call bwa
 /hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2 mem -t 24 /hb/home/rdekayne/ref_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna /hb/home/rdekayne/01_H2S_QC/output_QC/${indiv_name}_R1.out.fastq.gz /hb/home/rdekayne/01_H2S_QC/output_QC/${indiv_name}_R2.out.fastq.gz > /hb/home/rdekayne/03_H2S_mapping/temp_sam/output.${indiv_name}.raw.sam && touch ${indiv_name}.mapping1.done
 
 #run sambamba
-sambamba view -S /hb/home/rdekayne/03_H2S_mapping/temp_sam/output.${indiv_name}.raw.sam -f bam -o /hb/home/rdekayne/03_H2S_mapping/output/output.${indiv_name}.raw.bam -t 24 -l 9 && rm /hb/scratch/rdekayne/output.${indiv_name}.raw.sam && touch ${indiv_name}.mapping2.done
+sambamba view -S /hb/home/rdekayne/03_H2S_mapping/temp_sam/output.${indiv_name}.raw.sam -f bam -o /hb/home/rdekayne/03_H2S_mapping/output/output.${indiv_name}.raw.bam -t 24 -l 9 && rm /hb/home/rdekayne/03_H2S_mapping/temp_sam/output.${indiv_name}.raw.sam && touch ${indiv_name}.mapping2.done
 
 
 ##submit
@@ -163,15 +163,15 @@ sbatch --array=1-24 03.1_H2S_mapping.sh
 module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard
 
 ind=${SLURM_ARRAY_TASK_ID}
-indiv_name=$(cat /hb/home/rdekayne/01_H2S_QC/output_QC/test.indiv.list.txt | sed -n ${ind}p)
+indiv_name=$(cat /hb/home/rdekayne/01_H2S_QC/output_QC/indiv.list.txt | sed -n ${ind}p)
 
 picard FixMateInformation I=/hb/home/rdekayne/03_H2S_mapping/output/output.${indiv_name}.raw.bam VALIDATION_STRINGENCY=LENIENT OUTPUT=/hb/home/rdekayne/03_H2S_mapping/temp_bam/${indiv_name}.raw.bam
 
 sambamba sort /hb/home/rdekayne/03_H2S_mapping/temp_bam/${indiv_name}.raw.bam -o /hb/home/rdekayne/03_H2S_mapping/temp_bam/${indiv_name}.sorted.bam -t 24 -m 50GB
 
-picard MarkDuplicates INPUT=/hb/home/rdekayne/03_H2S_mapping/temp_bam/${indiv_name}.sorted.bam OUTPUT=/hb/home/rdekayne/03_H2S_mapping/processed_bams/${indiv_name}.sorted.dup.hellerii.bam METRICS_FILE=/hb/home/rdekayne/03_H2S_mapping/processed_bams/${indiv_name}.sorted.dup.hellerii.txt VALIDATION_STRINGENCY=LENIENT MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1024
+picard MarkDuplicates INPUT=/hb/home/rdekayne/03_H2S_mapping/temp_bam/${indiv_name}.sorted.bam OUTPUT=/hb/groups/kelley_lab/Rishi/processed_bams/${indiv_name}.sorted.dup.hellerii.bam METRICS_FILE=/hb/groups/kelley_lab/Rishi/processed_bams/${indiv_name}.sorted.dup.hellerii.txt VALIDATION_STRINGENCY=LENIENT MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1024
 
-sambamba index /hb/home/rdekayne/03_H2S_mapping/processed_bams/${indiv_name}.sorted.dup.hellerii.bam
+sambamba index /hb/groups/kelley_lab/Rishi/processed_bams/${indiv_name}.sorted.dup.hellerii.bam
 
 rm /hb/home/rdekayne/03_H2S_mapping/temp_bam/${indiv_name}.*
 
