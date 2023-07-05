@@ -117,6 +117,10 @@ module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1
 cd /hb/home/rdekayne/ref_genomes
 /hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2 index ./GCF_000633615.1_Guppy_female_1.0_MT_genomic.fna
 /hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2 index ./GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna
+/hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2 index /hb/groups/kelley_lab/reference_genomes/P.mexicana.PSO_hifi_reads.bc1020.asm.bp.p_ctg.fa
+/hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2 index /hb/groups/kelley_lab/reference_genomes/P.sulphuraria_hifi_reads.bc1018.asm.bp.p_ctg.fa
+/hb/software/apps/bwa-mem2/gnu-2.2.1/bin/bwa-mem2 index /hb/groups/kelley_lab/reference_genomes/P.thermalis_hifi_reads.bc1019.asm.bp.p_ctg.fa
+
 touch ./indices.done
 
 #calculate assembly stats
@@ -138,6 +142,9 @@ touch ./indices.done
 
 perl -I /hb/home/rdekayne/ref_genomes/ assemblathon_stats.pl ./GCF_000633615.1_Guppy_female_1.0_MT_genomic.fna
 perl -I /hb/home/rdekayne/ref_genomes/ assemblathon_stats.pl ./GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna
+perl -I /hb/home/rdekayne/ref_genomes/ assemblathon_stats.pl /hb/groups/kelley_lab/reference_genomes/P.mexicana.PSO_hifi_reads.bc1020.asm.bp.p_ctg.fa
+perl -I /hb/home/rdekayne/ref_genomes/ assemblathon_stats.pl /hb/groups/kelley_lab/reference_genomes/P.sulphuraria_hifi_reads.bc1018.asm.bp.p_ctg.fa
+perl -I /hb/home/rdekayne/ref_genomes/ assemblathon_stats.pl /hb/groups/kelley_lab/reference_genomes/P.thermalis_hifi_reads.bc1019.asm.bp.p_ctg.fa
 
 touch stats.done
 
