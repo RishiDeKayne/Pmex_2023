@@ -31,7 +31,7 @@ scp -r rishi.de-kayne@kamiak.wsu.edu:/data/kelley/projects/kerry/reference_genom
 #################
 #     01 MULTIQC
 #################
-# 01_H2S_QC.sh 
+## 01_H2S_QC_part1.sh 
 
 #!/bin/bash
 #SBATCH --job-name=fastqQC
@@ -44,7 +44,7 @@ scp -r rishi.de-kayne@kamiak.wsu.edu:/data/kelley/projects/kerry/reference_genom
 #SBATCH --cpus-per-task=2 # 2 CPUs per job
 #SBATCH --mem=4GB # Memory limit of 4GB
 
-module load hb hb-gnu fastq
+module load hb hb-gnu fastp
 
 cd /hb/home/rdekayne/01_H2S_QC
 ls ../data/*.fastq.gz > samples.txt
@@ -59,6 +59,33 @@ fastp -i /hb/home/rdekayne/data/${sample}_R1_001.fastq.gz -I /hb/home/rdekayne/d
 done
 
 touch all_samples.done
+
+## 01_H2S_QC_part2.sh 
+
+#!/bin/bash
+#SBATCH --job-name=fastqQC
+#SBATCH --time=0-12:00:00 # Wall clock time limit in Days-Hours:min:seconds
+#SBATCH --partition=128x24
+#SBATCH --output=QC.out # output file
+#SBATCH --error=QC.err # error file
+#SBATCH --ntasks=1 # Run 1 job
+#SBATCH --ntasks-per-node=1 # One task per computer
+#SBATCH --cpus-per-task=2 # 2 CPUs per job
+#SBATCH --mem=4GB # Memory limit of 4GB
+
+module load hb hb-gnu fastp
+
+cd /hb/home/rdekayne/01_H2S_QC
+ls ../data/*.R1.gz > samples2.txt
+sed -i 's/\.\.\/data\///g' samples2.txt
+sed -i 's/\.R1\.gz//g' samples2.txt
+
+cat samples2.txt | while read sample
+do
+fastp -i /hb/home/rdekayne/data/${sample}.R1.gz -I /hb/home/rdekayne/data/${sample}.R2.gz -o /hb/home/rdekayne/01_H2S_QC/output_QC/${sample}_R1.out.fastq.gz -O /hb/home/rdekayne/01_H2S_QC/output_QC/${sample}_R2.out.fastq.gz -h ${sample}.html && touch /hb/home/rdekayne/01_H2S_QC/output_QC/${sample}.done
+done
+
+touch all_samples2.done
 
 
 #################
@@ -180,9 +207,28 @@ touch ${indiv_name}.processing.done
 ##submit
 sbatch --array=1-24%2 03.2_H2S_mapping_processing.sh
 
+# 03.3_H2S_mapping_coverage.sh
+
+#!/bin/bash
+#SBATCH --job-name=mapping_processing
+#SBATCH --time=0-12:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=processing.%j.out # output file
+#SBATCH --error=processing.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=24
+#SBATCH --mem=50GB 
+
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth
+
+mosdepth -n /hb/groups/kelley_lab/Rishi/processed_bams/${indiv_name}.sorted.dup.hellerii.bam /data/martin/genomics/analyses/Danaus_mapping/${bam} && touch /data/martin/genomics/analyses/Danaus_mapping/DC174/coverage_raw/done_files/${bam}.done 
+
+sbatch --array=1-24%2 03.2_H2S_mapping_processing.sh
+
+
 
 #################
-#     03 GENOTYPING + FILTERING
+#     04 GENOTYPING + FILTERING
 #################
 cat /data/martin/genomics/analyses/Danaus_mapping/DC174/coverage_raw/scaf.list | while read line
 do
