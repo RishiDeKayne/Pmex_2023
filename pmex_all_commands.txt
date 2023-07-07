@@ -217,27 +217,48 @@ sbatch --array=1-24%2 03.2_H2S_mapping_processing.sh
 # 03.3_H2S_mapping_coverage.sh
 
 #!/bin/bash
-#SBATCH --job-name=mapping_processing
+#SBATCH --job-name=mosdepth
 #SBATCH --time=0-12:00:00
 #SBATCH --partition=128x24
-#SBATCH --output=processing.%j.out # output file
-#SBATCH --error=processing.%j.err # error file
+#SBATCH --output=depth.%j.out # output file
+#SBATCH --error=depth.%j.err # error file
 #SBATCH -N 1
-#SBATCH --cpus-per-task=24
-#SBATCH --mem=50GB 
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=10GB 
 
 module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth
 
-mosdepth -n /hb/groups/kelley_lab/Rishi/processed_bams/${indiv_name}.sorted.dup.hellerii.bam /data/martin/genomics/analyses/Danaus_mapping/${bam} && touch /data/martin/genomics/analyses/Danaus_mapping/DC174/coverage_raw/done_files/${bam}.done 
+ind=${SLURM_ARRAY_TASK_ID}
+indiv_name=$(cat /hb/home/rdekayne/01_H2S_QC/output_QC/indiv.list.txt | sed -n ${ind}p)
 
-sbatch --array=1-24%2 03.2_H2S_mapping_processing.sh
+mosdepth -n ${indiv_name}.sorted.dup.hellerii.bam /hb/groups/kelley_lab/Rishi/processed_bams/${indiv_name}.sorted.dup.hellerii.bam && touch ${indiv_name}.mosdepth.done 
 
+sbatch --array=1-24 03.3_H2S_mapping_coverage.sh
 
+#now make html file
+python ./plot-dist.py ./*global.dist.txt
+
+ls *.mosdepth.summary.txt > files.txt
+grep 'total' *.mosdepth.summary.txt | cut -f4 >> bam_raw_coverage.txt > coverage.txt
+paste files.txt coverage.txt > coverage_24.txt
+rm files.txt coverage.txt
 
 #################
 #     04 GENOTYPING + FILTERING
 #################
-cat /data/martin/genomics/analyses/Danaus_mapping/DC174/coverage_raw/scaf.list | while read line
+
+#make a scaffold list:
+cd /hb/groups/kelley_lab/reference_genomes
+module load hb hb-gnu samtools
+samtools faidx ./GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna
+
+ls ./GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna.fai
+
+cd ~/04_H2S_genotyping
+
+grep "NC_" /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna.fai > scaf.list
+
+cat /hb/home/rdekayne/04_H2S_genotyping/scaf.list | while read line
 do
 echo "bcftools mpileup -O u -d 250 --skip-indels -f /data/martin/genomics/analyses/Danaus_genome/Dchry2/Dchry2.2.fa --annotate FORMAT/DP --bam-list /scratch/rdekayne/genotyping/bam.list -r "${line}" | bcftools call -m -f GQ -O v | bgzip > /scratch/rdekayne/genotyping/"${line}".realigned.raw.vcf.gz && touch /data/martin/genomics/analyses/Danaus_popgen/DC174/genotyping/done_files/"${line}".realigned.raw.vcf.gz.done" >> geno_realigned_1pop.txt
 done
