@@ -284,12 +284,25 @@ bcftools mpileup -O u -d 250 --skip-indels -f /hb/groups/kelley_lab/reference_ge
 #run
 sbatch --array=1-25 04.1_H2S_genotyping.sh
 
+## 04.2_H2S_genotype_filt.sh
 
+#!/bin/bash
+#SBATCH --job-name=genotype
+#SBATCH --time=0-12:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=geno.%j.out # output file
+#SBATCH --error=geno.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=10GB 
 
-touch make.filt.chroms.txt
-cat /data/martin/genomics/analyses/Danaus_popgen/DC174/raw_chr_vcfs/vcf.list | while read line
-do
-echo "bcftools filter -Oz /scratch/rdekayne/genotyping/"${line}" -e 'FORMAT/DP < 7 | FORMAT/GQ < 30' --set-GTs . -O u | bcftools filter -e 'AN < 2' | bcftools sort -Oz -o /data/martin/genomics/analyses/Danaus_popgen/DC174/filt_chr_vcfs/"${line}"_filt_mindepth7_minqual30.vcf.gz" >> make.filt.chroms.txt
-done
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools
 
-parallel -j 1 'qsub -cwd -N bcftools -V -pe smp64 1 -l h=biggar -b yes {}' :::: make.filt.chroms.txt
+numb=${SLURM_ARRAY_TASK_ID}
+scaf_name=$(cat /hb/home/rdekayne/04_H2S_genotyping/scaf.list | sed -n ${numb}p)
+
+bcftools filter -Oz /hb/home/rdekayne/04_H2S_genotyping/"${scaf_name}".raw.vcf.gz  -e 'FORMAT/DP < 7 | FORMAT/GQ < 30' --set-GTs . -O u | bcftools filter -e 'AN < 2' | bcftools sort -Oz -o /hb/home/rdekayne/04_H2S_genotyping/"${scaf_name}"_filt_mindepth7_minqual30.vcf.gz && touch /hb/home/rdekayne/04_H2S_genotyping/done_files/"${scaf_name}".filt.done
+
+#run
+sbatch --array=1-25 04.2_H2S_genotype_filt.sh
+
