@@ -258,6 +258,36 @@ cd ~/04_H2S_genotyping
 
 grep "NC_" /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna.fai > scaf.list
 
+ls /hb/groups/kelley_lab/Rishi/processed_bams/*.bam > bam.list
+
+mkdir /hb/home/rdekayne/04_H2S_genotyping/done_files
+
+## 04.1_H2S_genotyping.sh
+
+#!/bin/bash
+#SBATCH --job-name=genotype
+#SBATCH --time=0-12:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=geno.%j.out # output file
+#SBATCH --error=geno.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=10GB 
+
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools
+
+numb=${SLURM_ARRAY_TASK_ID}
+scaf_name=$(cat /hb/home/rdekayne/04_H2S_genotyping/scaf.list | sed -n ${numb}p)
+
+bcftools mpileup -O u -d 250 --skip-indels -f /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna --annotate FORMAT/DP --bam-list /hb/home/rdekayne/04_H2S_genotyping/bam.list -r "${scaf_name}" | bcftools call -m -f GQ -O v | bgzip > /hb/home/rdekayne/04_H2S_genotyping/"${scaf_name}".raw.vcf.gz && touch /hb/home/rdekayne/04_H2S_genotyping/done_files/"${scaf_name}".raw.vcf.gz.done
+
+#run
+sbatch --array=1-1 04.1_H2S_genotyping.sh
+
+
+
+
+
 cat /hb/home/rdekayne/04_H2S_genotyping/scaf.list | while read line
 do
 echo "bcftools mpileup -O u -d 250 --skip-indels -f /data/martin/genomics/analyses/Danaus_genome/Dchry2/Dchry2.2.fa --annotate FORMAT/DP --bam-list /scratch/rdekayne/genotyping/bam.list -r "${line}" | bcftools call -m -f GQ -O v | bgzip > /scratch/rdekayne/genotyping/"${line}".realigned.raw.vcf.gz && touch /data/martin/genomics/analyses/Danaus_popgen/DC174/genotyping/done_files/"${line}".realigned.raw.vcf.gz.done" >> geno_realigned_1pop.txt
