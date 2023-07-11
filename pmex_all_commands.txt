@@ -309,34 +309,29 @@ sbatch --array=1-25 04.2_H2S_genotype_filt.sh
 ## 04.3_H2S_genotype_concat_missing.sh
 
 #!/bin/bash
-#SBATCH --job-name=genotype
+#SBATCH --job-name=filt
 #SBATCH --time=0-12:00:00
 #SBATCH --partition=128x24
-#SBATCH --output=geno.%j.out # output file
-#SBATCH --error=geno.%j.err # error file
+#SBATCH --output=geno_filt.%j.out # output file
+#SBATCH --error=geno_filt.%j.err # error file
 #SBATCH -N 1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=10GB 
+#SBATCH --mem=60GB 
 
 module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools
 
 mkdir -p /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs
-ls /hb/home/rdekayne/04_H2S_genotyping/*_filt_mindepth7_minqual30.gz > vcf_to_merge.txt
+
+ls /hb/home/rdekayne/04_H2S_genotyping/*_filt_mindepth7_minqual30.vcf.gz > vcf_to_merge.txt
 
 bcftools concat -Ou -f vcf_to_merge.txt | bcftools sort -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30.vcf.gz
 
 #max 10% missing filter for SNPs
 bcftools filter -Oz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30.vcf.gz -e 'INFO/MAC < 1 | AN < 43' | bcftools view -m2 -M2 -v snps | bcftools sort -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz
 
-bcftools view -H DC174_allchroms_output_filt_mindepth7_minqual30.vcf.gz | wc -l
+bcftools view -H /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30.vcf.gz | wc -l
 
-bcftools view -H DC174_allchroms_output_filt_mindepth7_minqual30_mac4_AN313.vcf.gz | wc -l
+bcftools view -H /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz | wc -l
 
-#assess missing data %s across individuals
-
-vcftools --gzvcf DC174_allchroms_output_filt_mindepth7_minqual30_mac4_AN313.vcf.gz --missing-indv --out missing_AN313
-
-#if more than 20% missing
-awk '{if($5 >= 0.2){print}}' missing_AN313.imiss > missing_AN313_rejected_indivs.txt
-
+touch genotype_stats.done
 
