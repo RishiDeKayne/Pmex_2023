@@ -1,5 +1,12 @@
 #De-Kayne 2023
 
+#01. MULTIQC
+#02. REFERENCES
+#03. MAPPING
+#04. GENOTYPING + FILTERING
+#05. PCA
+#06. 
+
 #####################################################################################
 #LOGIN
 
@@ -334,4 +341,40 @@ bcftools view -H /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth
 bcftools view -H /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz | wc -l
 
 touch genotype_stats.done
+
+##run
+sbatch 04.3_H2S_genotype_concat_missing.sh
+
+#################
+#     05 PCA
+#################
+cd /hb/home/rdekayne/05_PCA
+
+# 05.1_PCA_unfilt.sh
+
+#!/bin/bash
+#SBATCH --job-name=pca
+#SBATCH --time=0-12:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=pca.%j.out # output file
+#SBATCH --error=pca.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=20GB 
+
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
+
+mkdir -p /hb/home/rdekayne/05_PCA/unfilt_pca_plots
+
+cd /hb/home/rdekayne/05_PCA/unfilt_pca_plots
+
+plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.1 --out full_unfilt_out
+
+touch /hb/home/rdekayne/05_PCA/unfilt.done
+
+# 05.2_PCA_filt.sh
+
+
+
+
 
