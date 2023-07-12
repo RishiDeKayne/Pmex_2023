@@ -368,12 +368,13 @@ mkdir -p /hb/home/rdekayne/05_PCA/unfilt_pca_plots
 
 cd /hb/home/rdekayne/05_PCA/unfilt_pca_plots
 
-plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.1 --out full_unfilt_out
+plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out full_unfilt_out
 
 touch /hb/home/rdekayne/05_PCA/unfilt.done
 
 ##run
 sbatch 05.1_PCA_unfilt.sh
+#58097289 variants and 24 people pass filters and QC.
 
 # 05.2_PCA_filt.sh
 
@@ -395,10 +396,14 @@ cd /hb/home/rdekayne/05_PCA/filt_pca_plots
 
 plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.1 --out full_filt_out
 
+plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract full_filt_out.prune.in --make-bed --pca --out full_filtered_out
+
 touch /hb/home/rdekayne/05_PCA/filt.done
 
 ##run
 sbatch 05.2_PCA_filt.sh
+#2640854 variants and 24 people pass filters and QC.
+
 
 #################
 #     06 ADMIXTURE
