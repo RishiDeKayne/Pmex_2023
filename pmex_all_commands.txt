@@ -372,9 +372,69 @@ plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_min
 
 touch /hb/home/rdekayne/05_PCA/unfilt.done
 
+##run
+sbatch 05.1_PCA_unfilt.sh
+
 # 05.2_PCA_filt.sh
 
+#!/bin/bash
+#SBATCH --job-name=pca
+#SBATCH --time=0-12:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=pca2.%j.out # output file
+#SBATCH --error=pca2.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=20GB 
 
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
 
+mkdir -p /hb/home/rdekayne/05_PCA/filt_pca_plots
 
+cd /hb/home/rdekayne/05_PCA/filt_pca_plots
+
+plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.1 --out full_filt_out
+
+touch /hb/home/rdekayne/05_PCA/filt.done
+
+##run
+sbatch 05.2_PCA_filt.sh
+
+#################
+#     06 ADMIXTURE
+#################
+cd /hb/home/rdekayne/05_PCA
+
+# 06.1_admixture.sh
+
+#!/bin/bash
+#SBATCH --job-name=pca
+#SBATCH --time=0-12:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=pca.%j.out # output file
+#SBATCH --error=pca.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=20GB 
+
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
+
+#################
+#     07 NEIGHBOURNET
+#################
+cd /hb/home/rdekayne/05_PCA
+
+# 06.1_admixture.sh
+
+#!/bin/bash
+#SBATCH --job-name=pca
+#SBATCH --time=0-12:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=pca.%j.out # output file
+#SBATCH --error=pca.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=20GB 
+
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
 
