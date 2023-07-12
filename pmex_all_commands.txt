@@ -345,6 +345,14 @@ touch genotype_stats.done
 ##run
 sbatch 04.3_H2S_genotype_concat_missing.sh
 
+bcftools query -l /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz > old_names.txt
+sed 's/\/hb\/groups\/kelley_lab\/Rishi\/processed_bams\///g' old_names.txt > new_names.txt
+sed -i 's/.sorted.dup.hellerii.bam//g' new_names.txt
+
+paste old_names.txt new_names.txt > reheader.txt
+
+bcftools reheader --samples reheader.txt -o  /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.vcf.gz  /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz
+
 #################
 #     05 PCA
 #################
@@ -368,7 +376,7 @@ mkdir -p /hb/home/rdekayne/05_PCA/unfilt_pca_plots
 
 cd /hb/home/rdekayne/05_PCA/unfilt_pca_plots
 
-plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out full_unfilt_out
+plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out full_unfilt_out
 
 touch /hb/home/rdekayne/05_PCA/unfilt.done
 
@@ -394,9 +402,9 @@ mkdir -p /hb/home/rdekayne/05_PCA/filt_pca_plots
 
 cd /hb/home/rdekayne/05_PCA/filt_pca_plots
 
-plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.1 --out full_filt_out
+plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.1 --out full_filt_out
 
-plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract full_filt_out.prune.in --make-bed --pca --out full_filtered_out
+plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract full_filt_out.prune.in --make-bed --pca --out full_filtered_out
 
 touch /hb/home/rdekayne/05_PCA/filt.done
 
