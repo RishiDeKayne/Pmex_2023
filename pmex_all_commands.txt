@@ -435,7 +435,14 @@ module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools 
 #################
 #     07 NEIGHBOURNET
 #################
-cd /hb/home/rdekayne/05_PCA
+cd /hb/home/rdekayne/ && git clone https://github.com/simonhmartin/genomics_general
+
+mkdir -p /hb/home/rdekayne/07_neighbour_net && cd /hb/home/rdekayne/07_neighbour_net
+
+git clone https://github.com/simonhmartin/genomics_general
+
+python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.vcf.gz --skipIndels --minQual 30 --gtf flag=DP min=5 max=50 -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.geno.gz
+
 
 # 06.1_admixture.sh
 
