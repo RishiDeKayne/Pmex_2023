@@ -5,7 +5,9 @@
 #03. MAPPING
 #04. GENOTYPING + FILTERING
 #05. PCA
-#06. 
+#06. ADMIXTURE
+#07. NEIGHBOURNET
+#08. ASTRAL
 
 #####################################################################################
 #LOGIN
