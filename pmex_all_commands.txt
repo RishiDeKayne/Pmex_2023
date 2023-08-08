@@ -353,7 +353,9 @@ sed -i 's/.sorted.dup.hellerii.bam//g' new_names.txt
 
 paste old_names.txt new_names.txt > reheader.txt
 
-bcftools reheader --samples reheader.txt -o  /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.vcf.gz  /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz
+bcftools reheader --samples reheader.txt -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.vcf.gz  /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz
+
+plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.vcf.gz --missing --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out missing.out
 
 #################
 #     05 PCA
@@ -458,7 +460,7 @@ git clone https://github.com/simonhmartin/genomics_general
 #SBATCH --error=convert.%j.err # error file
 #SBATCH -N 1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=20GB 
+#SBATCH --mem=40GB 
 
 module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
 
