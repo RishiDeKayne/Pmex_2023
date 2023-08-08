@@ -464,13 +464,14 @@ git clone https://github.com/simonhmartin/genomics_general
 
 module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
 
-python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.vcf.gz --skipIndels --minQual 30 --gtf flag=DP min=5 max=50 -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.geno.gz
+python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.vcf.gz --skipIndels -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.geno.gz
 
 python ../genomics_general/distMat.py -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.geno.gz -f phased --windType cat -o /hb/home/rdekayne/07_neighbour_net/full_genome.dist
 
 touch /hb/home/rdekayne/07_neighbour_net/convert_and_net.done
 
 ##run
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
 conda activate /hb/home/rdekayne/envs/general
 sbatch 07.1_neighbour_net_convert_and_net.sh
 
