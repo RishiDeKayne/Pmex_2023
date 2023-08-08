@@ -490,23 +490,19 @@ sbatch 07.1_neighbour_net_convert_and_net.sh
 #################
 #     08 CONSENSUS
 #################
-#make geno file
-
-python parseVCF.py -i dan17.BT.DP5GQ20.CDS.vcf.gz | bgzip > dan17.BT.DP5GQ20.CDS.geno.gz
-
+#will use geno file to produce consensus sequences of each gene in gff
 
 #Filter for zero missing data (optional). Missing sites will be Ns in all individuals
 #Because the data are not phased, we use --outputGenoFormat diplo to output a single diploid genotype for each individual (ACGTMRWSYK)
 
-python filterGenotypes.py --threads 10 --minCalls 17 -i dan17.BT.DP5GQ20.CDS.geno.gz --outputGenoFormat diplo | bgzip > dan17.BT.DP5GQ20.CDS.nomis.diplo.gz"
-
+python filterGenotypes.py --threads 10 --minCalls 17 -i my.CDS.geno.gz --outputGenoFormat diplo | bgzip > my.CDS.nomis.diplo.gz"
 
 #extract alignemns for CDS for each mRNA
 #here --ploidy 1 is specified because we already collapsed wach diploid into a single genotype (default assumes phased diploid genotypes)
 #Note this will output an alignemnet for EVERY mRNA in the gff. Best to make sure there is only one mRNA transcript per gene in the gff before running
 #Also works with gtf format (add --annotationFormat gtf)
 
-python extractCDSAlignments.py -g dan17.BT.DP5GQ20.CDS.nomis.diplo.gz --ploidy 1 --outFormat fasta -o dan17.BT.DP5GQ20.CDS.nomis.diplo.fasta.gz --gff Dplex_V4_HiC/Dplex.tidy.gff3"
+python extractCDSAlignments.py -g my.CDS.nomis.diplo.gz --ploidy 1 --outFormat fasta -o my.CDS.nomis.diplo.fasta.gz --gff the.tidy.gff3"
 
 #################
 #     09 TREES
