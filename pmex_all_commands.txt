@@ -434,17 +434,13 @@ cd /hb/home/rdekayne/05_PCA
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=20GB 
 
-module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+module load hb hb-gnu htslib/gnu-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 
-bcftools annotate --rename-chrs rename_chr.txt /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.vcf.gz | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.chrrenamed.b.vcf.gz
-
-VCF_FILE=/hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.chrrenamed.b.vcf.gz
-plink --vcf ${VCF_FILE} --double-id --allow-extra-chr --set-missing-var-ids @:# \
---make-bed --pca --out admix_in
+bcftools annotate --rename-chrs rename_chr.txt /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.vcf.gz | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.chrrenamed.b.vcf.gz && plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.chrrenamed.b.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out admix_in
 
 for K in {2..2}
 do 
-admixture --cv=20 -j8 admix_in.bed ${K} | tee ${K}_admix_in.out && touch ${K}_admix_in.out.done"
+admixture --cv=20 -j8 admix_in.bed ${K} | tee ${K}_admix_in.out && touch ${K}_admix_in.out.done
 done
 
 ##run
