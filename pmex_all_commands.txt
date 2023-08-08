@@ -425,16 +425,29 @@ cd /hb/home/rdekayne/05_PCA
 # 06.1_admixture.sh
 
 #!/bin/bash
-#SBATCH --job-name=pca
-#SBATCH --time=0-12:00:00
+#SBATCH --job-name=admixture
+#SBATCH --time=0-24:00:00
 #SBATCH --partition=128x24
-#SBATCH --output=pca.%j.out # output file
-#SBATCH --error=pca.%j.err # error file
+#SBATCH --output=admix.%j.out # output file
+#SBATCH --error=admix.%j.err # error file
 #SBATCH -N 1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=20GB 
 
-module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+
+VCF_FILE=/hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.vcf.gz
+plink --vcf ${VCF_FILE} --double-id --allow-extra-chr --set-missing-var-ids @:# \
+--make-bed --pca --out admix_in
+
+for K in {2..2}
+do 
+admixture --cv=20 -j8 admix_in.bed ${K} | tee ${K}_admix_in.out && touch ${K}_admix_in.out.done"
+done
+
+##run
+sbatch 06.1_admixture.sh
+
 
 #################
 #     07 NEIGHBOURNET
