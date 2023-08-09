@@ -533,3 +533,9 @@ plink --bfile admix_in --allow-extra-chr --autosome-num 24 --assoc perm --allow-
 ##run
 sbatch 10.1_gwas.sh
 
+awk '{print $1,$3,$9}' plink.assoc > gwas_plot.txt
+paste gwas_plot.txt plink.assoc.perm > gwas_plot_emp.txt
+awk '{print $1,$2,$3,$6}' gwas_plot_emp.txt > gwas_plot_emp_total.txt
+awk '$3!=1 {print}' gwas_plot_emp_total.txt > gwas_plot_emp_total_not1.txt
+
+
