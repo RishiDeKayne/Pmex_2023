@@ -9,6 +9,7 @@
 #07. NEIGHBOURNET
 #08. CONSENSUS
 #09. TREES
+#10. GWAS
 
 #####################################################################################
 #LOGIN
@@ -507,3 +508,28 @@ python extractCDSAlignments.py -g my.CDS.nomis.diplo.gz --ploidy 1 --outFormat f
 #################
 #     09 TREES
 #################
+
+#################
+#     10 GWAS
+#################
+cp ../06_admixture/admix* .
+
+# 10.1_gwas.sh
+
+#!/bin/bash
+#SBATCH --job-name=gwas
+#SBATCH --time=0-4:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=gwas.%j.out # output file
+#SBATCH --error=gwas.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=20GB 
+
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+
+plink --bfile admix_in --allow-extra-chr --autosome-num 24 --assoc perm --allow-no-sex --missing-genotype N --threads 50
+
+##run
+sbatch 10.1_gwas.sh
+
