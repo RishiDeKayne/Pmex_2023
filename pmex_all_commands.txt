@@ -410,6 +410,10 @@ touch genotype_extra2_filt.done
 ##run
 sbatch 04.5_H2S_genotype_extra_filt.sh
 
+bcftools reheader --samples reheader.txt -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz  /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.vcf.gz
+
+plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz --missing --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out missing_AN48.out
+
 #################
 #     05 PCA
 #################
@@ -514,7 +518,7 @@ git clone https://github.com/simonhmartin/genomics_general
 #conda activate /hb/home/rdekayne/envs/general
 #mamba install numpy
 
-# 07.1_neighbour_net_convert_and_net.sh
+# 07.1_neighbour_net_convert.sh
 
 #!/bin/bash
 #SBATCH --job-name=convert
@@ -528,9 +532,32 @@ git clone https://github.com/simonhmartin/genomics_general
 
 module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
 
-python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.vcf.gz --skipIndels -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.geno.gz
+bcftools annotate --rename-chrs ../06_admixture/rename_chr.txt /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.chrrenamed.b.vcf.gz
 
-python ../genomics_general/distMat.py -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.renamed.geno.gz -f phased --windType cat -o /hb/home/rdekayne/07_neighbour_net/full_genome.dist
+python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.chrrenamed.b.vcf.gz --skipIndels -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.geno.gz
+
+touch /hb/home/rdekayne/07_neighbour_net/convert.done
+
+##run
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
+conda activate /hb/home/rdekayne/envs/general
+sbatch 07.1_neighbour_net_convert.sh
+
+# 07.2_neighbour_net_net.sh
+
+#!/bin/bash
+#SBATCH --job-name=convert
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=convert.%j.out # output file
+#SBATCH --error=convert.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=40GB 
+
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
+
+python ../genomics_general/distMat.py -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.geno.gz -f phased --windType cat -o /hb/home/rdekayne/07_neighbour_net/full_genome.dist
 
 touch /hb/home/rdekayne/07_neighbour_net/convert_and_net.done
 
