@@ -530,7 +530,7 @@ git clone https://github.com/simonhmartin/genomics_general
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=40GB 
 
-module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 
 bcftools annotate --rename-chrs ../06_admixture/rename_chr.txt /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.chrrenamed.b.vcf.gz
 
@@ -539,7 +539,7 @@ python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2
 touch /hb/home/rdekayne/07_neighbour_net/convert.done
 
 ##run
-module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 conda activate /hb/home/rdekayne/envs/general
 sbatch 07.1_neighbour_net_convert.sh
 
@@ -555,14 +555,14 @@ sbatch 07.1_neighbour_net_convert.sh
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=40GB 
 
-module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 
 python ../genomics_general/distMat.py -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.geno.gz -f phased --windType cat -o /hb/home/rdekayne/07_neighbour_net/full_genome.dist
 
 touch /hb/home/rdekayne/07_neighbour_net/convert_and_net.done
 
 ##run
-module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 conda activate /hb/home/rdekayne/envs/general
 sbatch 07.1_neighbour_net_convert_and_net.sh
 
