@@ -598,6 +598,9 @@ sed -i 's/NC_045693.1/22/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_h
 sed -i 's/NC_045694.1/23/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
 sed -i 's/NC_045695.1/24/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
 
+awk '{if($3=="mRNA") print $0}' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff > mRNA.gff
+head -n8 renamed_Xiphophorus_hellerii.gff > head_of_gff.txt && cat head_of_gff.txt mRNA.gff > full_mRNA.gff
+
 #Because the data are not phased, we use --outputGenoFormat diplo to output a single diploid genotype for each individual (ACGTMRWSYK)
 
 #python python ../genomics_general/filterGenotypes.py --threads 10 -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.geno.gz --outputGenoFormat diplo | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.gz
@@ -630,7 +633,7 @@ module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard
 
 python ../genomics_general/filterGenotypes.py --threads 10 -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.geno.gz --outputGenoFormat diplo | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.gz
 
-python ../genomics_general/extractCDSAlignments.py -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/08_consensus/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.fasta.gz --gff /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
+python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/full_mRNA.gff -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/08_consensus/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.fasta.gz
 
 touch consensus.done
 
