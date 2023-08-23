@@ -598,8 +598,9 @@ sed -i 's/NC_045693.1/22/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_h
 sed -i 's/NC_045694.1/23/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
 sed -i 's/NC_045695.1/24/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
 
-awk '{if($3=="mRNA") print $0}' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff > mRNA.gff
-head -n8 renamed_Xiphophorus_hellerii.gff > head_of_gff.txt && cat head_of_gff.txt mRNA.gff > full_mRNA.gff
+awk '{if($3=="mRNA") print $0}' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff > mrna.gff
+awk '{if($3=="exon") print $0}' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff > exon.gff
+head -n8 renamed_Xiphophorus_hellerii.gff > head_of_gff.txt && cat head_of_gff.txt mrna.gff exon.gff > full_mrna_exon.gff
 
 #Because the data are not phased, we use --outputGenoFormat diplo to output a single diploid genotype for each individual (ACGTMRWSYK)
 
@@ -638,6 +639,8 @@ python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayn
 touch consensus.done
 
 ##run
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+conda activate /hb/home/rdekayne/envs/general
 sbatch 08.1_get_consensus_fasta.sh
 
 #################
