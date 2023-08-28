@@ -569,8 +569,8 @@ sbatch 07.1_neighbour_net_convert_and_net.sh
 #################
 #     08 CONSENSUS
 #################
-#will use geno file to produce consensus sequences of each gene in gff
-#gff at /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+conda activate /hb/home/rdekayne/envs/general
 
 #need to change chr names to correspond to new geno file
 sed 's/NC_045672.1/1/g' /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff > /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
@@ -598,9 +598,16 @@ sed -i 's/NC_045693.1/22/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_h
 sed -i 's/NC_045694.1/23/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
 sed -i 's/NC_045695.1/24/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
 
-awk '{if($3=="mRNA") print $0}' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff > mrna.gff
-awk '{if($3=="CDS") print $0}' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff > CDS.gff
-head -n8 renamed_Xiphophorus_hellerii.gff > head_of_gff.txt && cat head_of_gff.txt mrna.gff CDS.gff > full_mrna_CDS.gff
+grep -v "NC_013089.1" /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff > renamed_Xiphophorus_hellerii.2.gff
+
+python python ../genomics_general/filterGenotypes.py --threads 10 -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.geno.gz --outputGenoFormat diplo | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.gz
+
+python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.2.gff -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/08_consensus/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.fasta.gz
+
+
+
+
+
 
 grep "V_gene" /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff | awk '{print $9}' | cut -d';' -f1 | sed 's/ID=//g' > V_genes.txt
 
