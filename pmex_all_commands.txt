@@ -590,6 +590,8 @@ python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2
 touch /hb/home/rdekayne/08_consensus/geno.done
 
 ##run
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+conda activate /hb/home/rdekayne/envs/general
 sbatch 08.1_get_geno.sh
 
 #now fix gff file to remove V_gene_segments
@@ -621,8 +623,54 @@ trna	1241	93.03	74.97
 v_gene_segment	155	211.71	1365.85
 Total	1442210	3028349.92	2099.80
 
+#now get list of V_gene_segments:
+grep "V_gene" /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff | awk '{print $9}' | cut -d';' -f1 | sed 's/ID=id-//g' > V_genes.txt
+
 #now make kill_list.txt and put in "V_gene_segment" and run:
-agat_sp_filter_feature_from_kill_list.pl --gff /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff --kill_list kill_list.txt --output filtered.xhel.gff
+agat_sp_filter_feature_from_kill_list.pl --gff /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff --kill_list V_genes.txt --output filtered.xhel.gff
+
+agat_sp_keep_longest_isoform.pl -gff filtered.xhel.gff -o outfile filtered_w_longest.xhel.gff
+
+#Because the data are not phased, we use --outputGenoFormat diplo to output a single diploid genotype for each individual (ACGTMRWSYK)
+
+# 08.2_get_consensus_fasta.sh
+
+#!/bin/bash
+#SBATCH --job-name=consensus
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=consensus.%j.out # output file
+#SBATCH --error=consensus.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=40GB 
+
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+
+python ../genomics_general/filterGenotypes.py --threads 10 -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.geno.gz --outputGenoFormat diplo | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.gz
+
+python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/filtered_w_longest.xhel.gff -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.fasta.gz
+
+touch consensus.done
+
+##run
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture miniconda3.9
+conda activate /hb/home/rdekayne/envs/general
+sbatch 08.2_get_consensus_fasta.sh
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -673,7 +721,6 @@ python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayn
 
 
 
-grep "V_gene" /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff | awk '{print $9}' | cut -d';' -f1 | sed 's/ID=//g' > V_genes.txt
 
 grep -v -f V_genes.txt full_mrna_CDS.gff > no_v_full_mrna_CDS.gff
 
@@ -693,30 +740,7 @@ grep -v -f V_genes.txt full_mrna_CDS.gff > no_v_full_mrna_CDS.gff
 
 #python ../genomics_general/extractCDSAlignments.py -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.gz --ploidy 1 --outFormat fasta -o H2S_24_mindepth7_minqual30_mac1_AN48.renamed.CDS.nomis.diplo.fasta.gz --gff /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
 
-# 08.1_get_consensus_fasta.sh
 
-#!/bin/bash
-#SBATCH --job-name=consensus
-#SBATCH --time=0-24:00:00
-#SBATCH --partition=128x24
-#SBATCH --output=consensus.%j.out # output file
-#SBATCH --error=consensus.%j.err # error file
-#SBATCH -N 1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=40GB 
-
-module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
-
-python ../genomics_general/filterGenotypes.py --threads 10 -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.geno.gz --outputGenoFormat diplo | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.gz
-
-python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/no_v_full_mrna_CDS.gff -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/08_consensus/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.fasta.gz
-
-touch consensus.done
-
-##run
-module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture miniconda3.9
-conda activate /hb/home/rdekayne/envs/general
-sbatch 08.1_get_consensus_fasta.sh
 
 #################
 #     09 TREES
