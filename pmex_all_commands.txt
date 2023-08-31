@@ -569,6 +569,70 @@ sbatch 07.1_neighbour_net_convert_and_net.sh
 #################
 #     08 CONSENSUS
 #################
+
+#first make geno to match the chromosomes in the gff
+# 08.1_get_geno.sh
+
+#!/bin/bash
+#SBATCH --job-name=geno
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=geno.%j.out # output file
+#SBATCH --error=geno.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=40GB 
+
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+
+python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz --skipIndels -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.geno.gz
+
+touch /hb/home/rdekayne/08_consensus/geno.done
+
+##run
+sbatch 08.1_get_geno.sh
+
+#now fix gff file to remove V_gene_segments
+
+module load agat/agat-1.2.0
+#/hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff
+
+agat_sp_extract_attributes.pl --help
+agat_sq_stat_basic.pl -i /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff
+
+##output
+Type (3rd column)	Number	Size total (kb)	Size mean (bp)	/!\Results are rounding to two decimal places 
+c_gene_segment	26	76.77	2952.58
+cdna_match	14204	3878.87	273.08
+cds	641651	106500.71	165.98
+d_loop	1	0.86	857.00
+exon	701982	192668.98	274.46
+gene	29964	514841.40	17182.00
+guide_rna	7	1.56	223.29
+lnc_rna	4628	32893.05	7107.40
+mrna	46248	1408305.07	30451.16
+pseudogene	295	2462.50	8347.45
+region	87	732906.12	8424208.33
+rrna	317	189.58	598.04
+snorna	153	17.78	116.19
+snrna	76	11.48	151.12
+transcript	1175	33290.44	28332.29
+trna	1241	93.03	74.97
+v_gene_segment	155	211.71	1365.85
+Total	1442210	3028349.92	2099.80
+
+#now make kill_list.txt and put in "V_gene_segment" and run:
+agat_sp_filter_feature_from_kill_list.pl --gff /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff --kill_list kill_list.txt --output filtered.xhel.gff
+
+
+
+
+
+
+
+
+
+
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 conda activate /hb/home/rdekayne/envs/general
 
