@@ -623,11 +623,15 @@ trna	1241	93.03	74.97
 v_gene_segment	155	211.71	1365.85
 Total	1442210	3028349.92	2099.80
 
-#now get list of V_gene_segments:
+#now get list of V_gene_segments and C_gene_segments:
 grep "V_gene" /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff | awk '{print $9}' | cut -d';' -f1 | sed 's/ID=//g' > V_genes.txt
 
+grep "C_gene" /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff | awk '{print $9}' | cut -d';' -f1 | sed 's/ID=//g' > C_genes.txt
+
+cat V_genes.txt C_genes.txt > V_genes_C_genes.txt
+
 #now make kill_list.txt and put in "V_gene_segment" and run:
-agat_sp_filter_feature_from_kill_list.pl --gff /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff --kill_list V_genes.txt --output filtered.xhel.gff
+agat_sp_filter_feature_from_kill_list.pl --gff /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff --kill_list V_genes_C_genes.txt --output filtered.xhel.gff
 
 agat_sp_keep_longest_isoform.pl -gff filtered.xhel.gff -o outfile filtered_w_longest.xhel.gff
 
