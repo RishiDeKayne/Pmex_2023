@@ -633,7 +633,7 @@ cat V_genes.txt C_genes.txt > V_genes_C_genes.txt
 #now make kill_list.txt and put in "V_gene_segment" and run:
 agat_sp_filter_feature_from_kill_list.pl --gff /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff --kill_list V_genes_C_genes.txt --output filtered.xhel.gff
 
-agat_sp_keep_longest_isoform.pl -gff filtered.xhel.gff -o outfile filtered_w_longest.xhel.gff
+agat_sp_keep_longest_isoform.pl -gff filtered.xhel.gff -o filtered_w_longest.xhel.gff
 
 #Because the data are not phased, we use --outputGenoFormat diplo to output a single diploid genotype for each individual (ACGTMRWSYK)
 
