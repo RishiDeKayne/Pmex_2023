@@ -641,6 +641,33 @@ grep -f ../04_H2S_genotyping/scaf.list filtered_w_longest.xhel.gff > filtered_w_
 #Because the data are not phased, we use --outputGenoFormat diplo to output a single diploid genotype for each individual (ACGTMRWSYK)
 
 # 08.2_get_consensus_fasta.sh
+#!/bin/bash
+#SBATCH --job-name=consensus
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=consensus.%j.out # output file
+#SBATCH --error=consensus.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=40GB 
+
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+
+python ../genomics_general/filterGenotypes.py --threads 10 -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.geno.gz --outputGenoFormat diplo | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.gz
+
+touch consensus1.done
+
+##run
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture miniconda3.9
+conda activate /hb/home/rdekayne/envs/general
+sbatch 08.2_get_consensus_fasta.sh
+
+mv /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo
+
+bgzip /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo
+tabix -p vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.gz
+
+# 08.3_get_consensus_fasta.sh
 
 #!/bin/bash
 #SBATCH --job-name=consensus
@@ -654,20 +681,14 @@ grep -f ../04_H2S_genotyping/scaf.list filtered_w_longest.xhel.gff > filtered_w_
 
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 
-python ../genomics_general/filterGenotypes.py --threads 10 -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.geno.gz --outputGenoFormat diplo -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo
-
-bgzip /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo
-
-tabix -p /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.gz
-
 python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.fasta.gz
 
-touch consensus.done
+touch consensus2.done
 
 ##run
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture miniconda3.9
 conda activate /hb/home/rdekayne/envs/general
-sbatch 08.2_get_consensus_fasta.sh
+sbatch 08.3_get_consensus_fasta.sh
 
 #################
 #     09 TREES
