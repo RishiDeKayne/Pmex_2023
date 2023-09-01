@@ -664,76 +664,49 @@ touch ./consensus_seq.done
 ##run
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 conda activate /hb/home/rdekayne/envs/general
-sbatch 08.1_get_geno.sh
-
-
-
-
-
-
-
-
-
-#Because the data are not phased, we use --outputGenoFormat diplo to output a single diploid genotype for each individual (ACGTMRWSYK)
-
-# 08.2_get_consensus_fasta.sh
-#!/bin/bash
-#SBATCH --job-name=consensus
-#SBATCH --time=0-24:00:00
-#SBATCH --partition=128x24
-#SBATCH --output=consensus.%j.out # output file
-#SBATCH --error=consensus.%j.err # error file
-#SBATCH -N 1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=40GB 
-
-module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
-
-python ../genomics_general/filterGenotypes.py --threads 10 -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.geno.gz --outputGenoFormat diplo | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.gz
-
-touch consensus1.done
-
-##run
-module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture miniconda3.9
-conda activate /hb/home/rdekayne/envs/general
 sbatch 08.2_get_consensus_fasta.sh
 
-mv /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo
-
-bgzip /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo
-tabix -p vcf bgzip /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.gz
-
-# 08.3_get_consensus_fasta.sh
-
-#!/bin/bash
-#SBATCH --job-name=consensus
-#SBATCH --time=0-24:00:00
-#SBATCH --partition=128x24
-#SBATCH --output=consensus.%j.out # output file
-#SBATCH --error=consensus.%j.err # error file
-#SBATCH -N 1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=40GB 
-
-module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
-
-python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.fasta.gz
-
-touch consensus2.done
-
-##run
-module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture miniconda3.9
-conda activate /hb/home/rdekayne/envs/general
-sbatch 08.3_get_consensus_fasta.sh
-
-
-python ../genomics_general/extractCDSAlignments.py --no-split --annotation /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.geno.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.geno.fasta.gz
-
---dontSplit
 
 #################
 #     09 TREES
 #################
+#want to make a species tree first using astral
+zcat ../08_consensus/consensus.diplo.fasta.gz | awk -v RS= '{close("gene_" i ".txt"); i++}{print > ("gene_" i ".txt")}'
+
+mkdir -p gene_alignments
+
+mv *.txt gene_alignments/
+ls gene_alignments/*.txt > gene_names.txt
+
+touch ccount.txt && touch ncount.txt
+cat gene_names.txt | while read line 
+do
+	echo ${line}
+	head -n2 genes/${line} | tail -n1 | wc -c >> ccount.txt
+	head -n2 genes/${line} | tail -n1 | tr -cd 'N' | wc -c >> ncount.txt
+done 
+
+paste gene_names.txt ncount.txt ccount.txt > genes_N_count.txt
+
+awk '{if($2 <= 500 && (($2/$3)*100) < 75) {print $0}}' genes_N_count.txt > filt.txt
+awk '{if($2 <= 500 && (($2/$3)*100) < 75) {print $0}}' genes_N_count.txt | cut -f 1 > filt_genes.txt
+
+wc -l filt_genes.txt 
+#15 filt_genes.txt
+
+mkdir alignment_test_renamed
+
+cat filt_genes.txt | while read line 
+do
+	cut -d'_' -f1 genes/${line} > alignment_test_renamed/${line}
+done
+
+ls alignment_test_renamed/* | wc -l
+
+pargenes.py -a ./alignment_test_renamed -o ./alignment_test_out --cores 64 -d nt -m --job-failure-fatal --use-astral
+
+cp alignment_test_out/astral_run/output_species_tree.newick orientis_inv3.tree.out
+
 
 #################
 #     10 GWAS
