@@ -635,6 +635,9 @@ agat_sp_filter_feature_from_kill_list.pl --gff /hb/groups/kelley_lab/reference_g
 
 agat_sp_keep_longest_isoform.pl -gff filtered.xhel.gff -o filtered_w_longest.xhel.gff
 
+#now filter for only those chromosomes in .geno file:
+grep -f ../04_H2S_genotyping/scaf.list filtered_w_longest.xhel.gff > filtered_w_longest_scaf.xhel.gff
+
 #Because the data are not phased, we use --outputGenoFormat diplo to output a single diploid genotype for each individual (ACGTMRWSYK)
 
 # 08.2_get_consensus_fasta.sh
@@ -653,7 +656,7 @@ module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard
 
 python ../genomics_general/filterGenotypes.py --threads 10 -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.geno.gz --outputGenoFormat diplo | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.gz
 
-python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/filtered_w_longest.xhel.gff -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.fasta.gz
+python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.diplo.fasta.gz
 
 touch consensus.done
 
@@ -661,90 +664,6 @@ touch consensus.done
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture miniconda3.9
 conda activate /hb/home/rdekayne/envs/general
 sbatch 08.2_get_consensus_fasta.sh
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
-conda activate /hb/home/rdekayne/envs/general
-
-#need to change chr names to correspond to new geno file
-sed 's/NC_045672.1/1/g' /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff > /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045673.1/2/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045674.1/3/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045675.1/4/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045676.1/5/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045677.1/6/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045678.1/7/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045679.1/8/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045680.1/9/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045681.1/10/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045682.1/11/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045683.1/12/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045684.1/13/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045685.1/14/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045686.1/15/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045687.1/16/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045688.1/17/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045689.1/18/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045690.1/19/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045691.1/20/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045692.1/21/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045693.1/22/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045694.1/23/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-sed -i 's/NC_045695.1/24/g' /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-
-grep -v "NC_013089.1" /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff > renamed_Xiphophorus_hellerii.2.gff
-
-python python ../genomics_general/filterGenotypes.py --threads 10 -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.geno.gz --outputGenoFormat diplo | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.gz
-
-python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.2.gff -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/08_consensus/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.fasta.gz
-
-
-
-
-
-
-
-grep -v -f V_genes.txt full_mrna_CDS.gff > no_v_full_mrna_CDS.gff
-
-#Because the data are not phased, we use --outputGenoFormat diplo to output a single diploid genotype for each individual (ACGTMRWSYK)
-
-#python python ../genomics_general/filterGenotypes.py --threads 10 -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.geno.gz --outputGenoFormat diplo | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.gz
-
-#extract alignemns for CDS for each mRNA
-#here --ploidy 1 is specified because we already collapsed wach diploid into a single genotype (default assumes phased diploid genotypes)
-#Note this will output an alignemnet for EVERY mRNA in the gff. Best to make sure there is only one mRNA transcript per gene in the gff before running
-#Also works with gtf format (add --annotationFormat gtf)
-
-#awk '{if($3=="gene") print $0}' /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff | wc -l
-##29964
-#awk '{if($3=="mRNA") print $0}' /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff | wc -l
-##46248
-
-#python ../genomics_general/extractCDSAlignments.py -g /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.diplo.gz --ploidy 1 --outFormat fasta -o H2S_24_mindepth7_minqual30_mac1_AN48.renamed.CDS.nomis.diplo.fasta.gz --gff /hb/home/rdekayne/08_consensus/renamed_Xiphophorus_hellerii.gff
-
-
 
 #################
 #     09 TREES
