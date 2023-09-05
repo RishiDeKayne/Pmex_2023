@@ -731,6 +731,8 @@ ls alignment_test_renamed/* | wc -l
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=40GB 
 
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture jdk
+
 python ../ParGenes/pargenes/pargenes.py -a ./alignment_test_renamed -o ./alignment_test_out --cores 64 -d nt -m --job-failure-fatal --use-astral
 
 touch spp_tree.done
