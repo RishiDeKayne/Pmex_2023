@@ -670,6 +670,12 @@ sbatch 08.2_get_consensus_fasta.sh
 #################
 #     09 TREES
 #################
+
+git clone --recursive https://github.com/BenoitMorel/ParGenes.git
+cd ParGenes
+module load cmake/3.25.3
+./install.sh 10
+
 #want to make a species tree first using astral
 zcat ../08_consensus/consensus.diplo.fasta.gz | awk -v RS= '{close("gene_" i ".txt"); i++}{print > ("gene_" i ".txt")}'
 
@@ -682,26 +688,38 @@ touch ccount.txt && touch ncount.txt
 cat gene_names.txt | while read line 
 do
 	echo ${line}
-	head -n2 genes/${line} | tail -n1 | wc -c >> ccount.txt
-	head -n2 genes/${line} | tail -n1 | tr -cd 'N' | wc -c >> ncount.txt
+	head -n2 ${line} | tail -n1 | wc -c >> ccount.txt
+	head -n2 ${line} | tail -n1 | tr -cd 'N' | wc -c >> ncount.txt
 done 
 
 paste gene_names.txt ncount.txt ccount.txt > genes_N_count.txt
 
-awk '{if($2 <= 500 && (($2/$3)*100) < 75) {print $0}}' genes_N_count.txt > filt.txt
-awk '{if($2 <= 500 && (($2/$3)*100) < 75) {print $0}}' genes_N_count.txt | cut -f 1 > filt_genes.txt
+awk '{if($2 >= 500) {print $0}}' genes_N_count.txt > 500bp_genes.txt
+
+awk '{if($2 <= 500 && (($2/$3)*100) < 95) {print $0}}' genes_N_count.txt > filt.txt
+
+awk '{if($2 <= 500 && (($2/$3)*100) < 95) {print $0}}' genes_N_count.txt | cut -f 1 > filt_genes.txt
 
 wc -l filt_genes.txt 
-#15 filt_genes.txt
+#1218 filt_genes.txt
 
 mkdir alignment_test_renamed
 
-cat filt_genes.txt | while read line 
+sed 's/gene_alignments\///g' filt_genes.txt > filt_genes2.txt
+
+cd gene_alignments
+
+cat filt_genes2.txt | while read line 
 do
-	cut -d'_' -f1 genes/${line} > alignment_test_renamed/${line}
+	cut -d'_' -f1 gene_alignments/${line} > alignment_test_renamed/${line}
 done
 
 ls alignment_test_renamed/* | wc -l
+#1218
+
+########raxml/astral thing
+module load raxml-ng/raxml-ng-1.2.0 aster/aster-1.15
+
 
 pargenes.py -a ./alignment_test_renamed -o ./alignment_test_out --cores 64 -d nt -m --job-failure-fatal --use-astral
 
