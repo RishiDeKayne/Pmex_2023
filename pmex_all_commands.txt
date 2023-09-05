@@ -717,11 +717,26 @@ done
 ls alignment_test_renamed/* | wc -l
 #1218
 
-########raxml/astral thing
-module load raxml-ng/raxml-ng-1.2.0 aster/aster-1.15
+########raxml/astral via pargenes
+#module load raxml-ng/raxml-ng-1.2.0 aster/aster-1.15
 
+# 9.1_get_main_tree.sh
+#!/bin/bash
+#SBATCH --job-name=tree
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=tree.%j.out # output file
+#SBATCH --error=tree.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=40GB 
 
-pargenes.py -a ./alignment_test_renamed -o ./alignment_test_out --cores 64 -d nt -m --job-failure-fatal --use-astral
+python ../ParGenes/pargenes/pargenes.py -a ./alignment_test_renamed -o ./alignment_test_out --cores 64 -d nt -m --job-failure-fatal --use-astral
+
+touch spp_tree.done
+
+##run
+sbatch 9.1_get_main_tree.sh
 
 cp alignment_test_out/astral_run/output_species_tree.newick orientis_inv3.tree.out
 
