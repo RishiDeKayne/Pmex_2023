@@ -773,6 +773,9 @@ touch spp_tree2.done
 ##run
 sbatch 9.2_get_main_tree_all_genes.sh
 
+cp alignment_test_allgenes3_out/astral_run/output_species_tree.newick ./output_species_tree_all_genes.newick
+./rename_tree.sh output_species_tree_all_genes.newick
+
 #################
 #     10 GWAS
 #################
