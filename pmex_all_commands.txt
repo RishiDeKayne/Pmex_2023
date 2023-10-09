@@ -939,4 +939,10 @@ touch ./Phangorn.done
 module load RERconverge
 sbatch 11.1_Phangorn_tree_building.sh
 
+#
+grep "Extracting mRNA" /hb/home/rdekayne/08_consensus/consensus.294237.err | sed 's/    Extracting mRNA //g' | cut -d ':' -f1 > gene_names_original.txt
+sed "=" gene_names_original.txt | sed "N;s/\n/ /" > gene_names_and_numbers.txt
+
+sed 's/gene_//g' allvalues_test.csv > allvalues_test_gene_numbers.csv
+
 
