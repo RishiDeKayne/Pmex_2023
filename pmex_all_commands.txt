@@ -808,15 +808,61 @@ awk '$3!=1 {print}' gwas_plot_emp_total.txt > gwas_plot_emp_total_not1.txt
 ####################
 11.	RERCONVERGE
 ####################
-module load ohpc
-module load miniconda3.9
-conda create -p /hb/home/rdekayne/envs/rerconverge
-conda activate /hb/home/rdekayne/envs/rerconverge
-conda install -c conda-forge libgcc-ng
-conda install -c conda-forge r-weights
-conda install -c conda-forge r-animation
-conda install -c anaconda icu=54.1
-mamba install -c conda-forge r-base=4.2.1
-mamba install rerconverge --only-deps
+
+salloc --partition=128x24 --time=01:00:00 --mem=500M --cpus-per-task=1 --ntasks=1
+export | grep SLURM
+ssh $SLURM_NODELIST
+
+#in a new window
+#ssh -XY -N -L 2022:hbcomp-026:22 rdekayne@hb.ucsc.edu &
+#56030
+
+ssh -XY -p 2022 localhost
+module load rerconverge
+
+R
+
+library(RERconverge)
+rerpath = find.package('RERconverge') #If this errors, there is an issue with installation
+print(rerpath)
+
+toytreefile = "subsetMammalGeneTrees.txt" 
+toyTrees=readTrees(paste(rerpath,"/extdata/",toytreefile,sep=""), max.read = 200)
+
+data("logAdultWeightcm") 
+mamRERw = getAllResiduals(toyTrees,useSpecies=names(logAdultWeightcm), 
+                           transform = "sqrt", weighted = T, scale = T)
+
+saveRDS(mamRERw, file="mamRERw.rds") 
+newmamRERw = readRDS("mamRERw.rds")
+
+#make average and gene tree plots
+noneutherians <- c("Platypus","Wallaby","Tasmanian_devil","Opossum")
+par(mfrow=c(1,2))
+avgtree=plotTreeHighlightBranches(toyTrees$masterTree, outgroup=noneutherians,
+                                  hlspecies=c("Vole","Squirrel"), hlcols=c("blue","red"), 
+                                  main="Average tree") #plot average tree
+bend3tree=plotTreeHighlightBranches(toyTrees$trees$BEND3, outgroup=noneutherians, 
+                                    hlspecies=c("Vole","Squirrel"), hlcols=c("blue","red"), 
+                                    main="BEND3 tree") #plot individual gene tree
+
+#plot RERs
+par(mfrow=c(1,1))
+phenvExample <- foreground2Paths(c("Vole","Squirrel"),toyTrees,clade="terminal")
+plotRers(mamRERw,"BEND3",phenv=phenvExample) #plot RERs
+
+#plot RERs as tree
+par(mfrow=c(1,1))
+bend3rers = returnRersAsTree(toyTrees, mamRERw, "BEND3", plot = TRUE,
+                             phenv=phenvExample) #plot RERs
+
+strwrap(gsub(":",write.tree(bend3rers),replacement=": "))
+
+multirers = returnRersAsTreesAll(toyTrees,mamRERw)
+write.tree(multirers, file='toyRERs.nwk', tree.names=TRUE)
+
+#visualize RERs along branches as a heatmap
+newbend3rers = treePlotRers(treesObj=toyTrees, rermat=mamRERw, index="BEND3", 
+                            type="c", nlevels=9, figwid=10)
 
 
