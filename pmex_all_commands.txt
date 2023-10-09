@@ -899,9 +899,6 @@ cp output_species_tree.newick output_species_tree_only_topology.newick
 
 ## Phangorn_tree_building.R
 
-
-#### Phangorn tree building -----------------------------------------------------------------------------------------------------
-
 # Calculate branch lengths for all genes using the multi-species alignments and spp tree
 
 # Load required modules
@@ -921,4 +918,25 @@ NucOutput <- paste("/hb/home/rdekayne/11_RERconverge/test_run/NucGeneTrees.trees
 # The general time reversible model (GTR), appropriate for DNA sequences, was used as the substitution model
 # Nuclear
 estimatePhangornTreeAll(alnfiles = NucInFrameAlignment, treefile = MasterTree, output.file= NucOutputFN, format = "phylip", type = "DNA", submodel = "GTR")
+
+# 11.1_Phangorn_tree_building.sh
+#!/bin/bash
+#SBATCH --job-name=Phangorn
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=Phangorn.%j.out # output file
+#SBATCH --error=Phangorn.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=4GB 
+
+module load RERconverge
+Rscript --vanilla /hb/home/rdekayne/11_RERconverge/test_run/Phangorn_tree_building.R
+
+touch ./Phangorn.done
+
+##run
+module load RERconverge
+sbatch 11.1_Phangorn_tree_building.sh
+
 
