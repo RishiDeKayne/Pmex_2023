@@ -906,10 +906,10 @@ library(devtools)
 library(RERconverge)
 
 # Path to master tree topology. fn = function.
-MasterTree <- paste("/hb/home/rdekayne/09_trees/alignment_test_allgenes3_out/astral_run/output_species_tree_only_topology.newick")
+MasterTree <- paste("/hb/home/rdekayne/09_trees/alignment_test_allgenes3_out/astral_run/test.newick")
 
 # Path to multi-species gene alignments
-NucInFrameAlignment <- paste("/hb/home/rdekayne/08_consensus/consensus.diplo.trees")
+NucInFrameAlignment <- paste("/hb/home/rdekayne/09_trees/alignment_test_renamed")
 
 # Path to output files
 NucOutput <- paste("/hb/home/rdekayne/11_RERconverge/test_run/NucGeneTrees.trees")
@@ -917,7 +917,7 @@ NucOutput <- paste("/hb/home/rdekayne/11_RERconverge/test_run/NucGeneTrees.trees
 # Estimate branch lengths for all sequences in the alignment directories for mitochondrial and nuclear genes
 # The general time reversible model (GTR), appropriate for DNA sequences, was used as the substitution model
 # Nuclear
-estimatePhangornTreeAll(alnfiles = NucInFrameAlignment, treefile = MasterTree, output.file = NucOutput, format = "phylip", type = "DNA", submodel = "GTR")
+estimatePhangornTreeAll(alndir = NucInFrameAlignment, treefile = MasterTree, output.file = NucOutput, format = "fasta", type = "DNA", submodel = "GTR")
 
 # 11.1_Phangorn_tree_building.sh
 #!/bin/bash
