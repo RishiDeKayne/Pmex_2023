@@ -905,7 +905,7 @@ cp output_species_tree.newick output_species_tree_only_topology.newick
 library(devtools)
 library(RERconverge)
 
-# Path to master tree topology. fn = function.
+# Path to master tree topology. This tree must have branch lengths set to 1
 MasterTree <- paste("/hb/home/rdekayne/09_trees/alignment_test_allgenes3_out/astral_run/test.newick")
 
 # Path to multi-species gene alignments
