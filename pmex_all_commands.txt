@@ -666,6 +666,26 @@ module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard
 conda activate /hb/home/rdekayne/envs/general
 sbatch 08.2_get_consensus_fasta.sh
 
+# 08.3_get_consensus_phylip.sh
+#!/bin/bash
+#SBATCH --job-name=consensus
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=consensus2.%j.out # output file
+#SBATCH --error=consensus2.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=40GB 
+
+python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -g /hb/home/rdekayne/08_consensus/consensus.diplo.gz --ploidy 1 --outFormat phylip -o /hb/home/rdekayne/08_consensus/consensus.diplo.trees
+
+touch ./consensus_seq_phylip.done
+
+##run
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+conda activate /hb/home/rdekayne/envs/general
+sbatch 08.3_get_consensus_phylip.sh
+
 
 #################
 #     09 TREES
@@ -865,4 +885,44 @@ write.tree(multirers, file='toyRERs.nwk', tree.names=TRUE)
 newbend3rers = treePlotRers(treesObj=toyTrees, rermat=mamRERw, index="BEND3", 
                             type="c", nlevels=9, figwid=10)
 
+
+
+
+
+
+
+
+
+
+
+
+#### Phangorn tree building -----------------------------------------------------------------------------------------------------
+
+# Calculate branch lengths for all genes using the multi-species alignments and a master species tree topology from N. Barts 2018 Genome/R. Greenway 2020 PNAS
+
+# Load required modules
+library(devtools)
+library(RERconverge)
+
+# Path to master tree topology. fn = function.
+MasterTreeFN <- paste("/data/kelley/projects/kerry/pmex_evo_rates_aa_convergence/master_species_tree_from_Ryan/NoGroupTree_topology_only.tree")
+
+# Path to multi-species gene alignments
+# Mitochondrial
+#MtInFrameAlignmentFN <- paste("/data/kelley/projects/kerry/pmex_evo_rates_aa_convergence/MtInFrameAlignment/")
+# Nuclear
+NucInFrameAlignmentFN <- paste("/data/kelley/projects/kerry/pmex_evo_rates_aa_convergence/InFrameAlignment/")
+
+# Path to output files
+# Mitochondrial
+#MtOutputFN <- paste("/data/kelley/projects/kerry/pmex_evo_rates_aa_convergence/02_rerconverge/01_MtGeneTrees.trees")
+# Nuclear
+NucOutputFN <- paste("/data/kelley/projects/kerry/pmex_evo_rates_aa_convergence/02_rerconverge/01_NucGeneTrees.trees")
+
+# Estimate branch lengths for all sequences in the alignment directories for mitochondrial and nuclear genes
+# The general time reversible model (GTR), appropriate for DNA sequences, was used as the substitution model
+# Mitochondrial
+#estimatePhangornTreeAll(alndir = MtInFrameAlignmentFN, treefile = MasterTreeFN, output.file= MtOutputFN, format = "phylip", type = "DNA", submodel = "GTR")
+# Nuclear
+estimatePhangornTreeAll(alndir = NucInFrameAlignmentFN, treefile = MasterTreeFN, output.file= NucOutputFN, format = "phylip", type = "DNA", submodel = "GTR")
 
