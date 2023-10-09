@@ -917,7 +917,7 @@ NucOutput <- paste("/hb/home/rdekayne/11_RERconverge/test_run/NucGeneTrees.trees
 # Estimate branch lengths for all sequences in the alignment directories for mitochondrial and nuclear genes
 # The general time reversible model (GTR), appropriate for DNA sequences, was used as the substitution model
 # Nuclear
-estimatePhangornTreeAll(alnfiles = NucInFrameAlignment, treefile = MasterTree, output.file= NucOutputFN, format = "phylip", type = "DNA", submodel = "GTR")
+estimatePhangornTreeAll(alnfiles = NucInFrameAlignment, treefile = MasterTree, output.file = NucOutput, format = "phylip", type = "DNA", submodel = "GTR")
 
 # 11.1_Phangorn_tree_building.sh
 #!/bin/bash
