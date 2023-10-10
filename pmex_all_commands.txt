@@ -829,73 +829,33 @@ awk '$3!=1 {print}' gwas_plot_emp_total.txt > gwas_plot_emp_total_not1.txt
 11.	RERCONVERGE
 ####################
 
-salloc --partition=128x24 --time=01:00:00 --mem=500M --cpus-per-task=1 --ntasks=1
-export | grep SLURM
-ssh $SLURM_NODELIST
+cd /hb/home/rdekayne/09_trees
+#file goes name - N - C so want to make sure that N!=C
+awk '{if(($2+11) < $3) {print $0}}' genes_N_count.txt | cut -f 1 > RER_genes.txt
 
-#in a new window
-#ssh -XY -N -L 2022:hbcomp-026:22 rdekayne@hb.ucsc.edu &
-#56030
+wc -l RER_genes.txt 
+#21046 RER_genes.txt
 
-ssh -XY -p 2022 localhost
-module load rerconverge
+mkdir alignment_for_RERconverge2
 
-R
+sed 's/gene_alignments\///g' RER_genes.txt > RER_genes2.txt
 
-library(RERconverge)
-rerpath = find.package('RERconverge') #If this errors, there is an issue with installation
-print(rerpath)
+cd gene_alignments
 
-toytreefile = "subsetMammalGeneTrees.txt" 
-toyTrees=readTrees(paste(rerpath,"/extdata/",toytreefile,sep=""), max.read = 200)
+cat ../RER_genes2.txt | while read line 
+do
+cut -d'_' -f1 ./${line} > ../alignment_for_RERconverge2/${line}
+done
 
-data("logAdultWeightcm") 
-mamRERw = getAllResiduals(toyTrees,useSpecies=names(logAdultWeightcm), 
-                           transform = "sqrt", weighted = T, scale = T)
+cd ../ && ls alignment_for_RERconverge2/* | wc -l
+#21046
 
-saveRDS(mamRERw, file="mamRERw.rds") 
-newmamRERw = readRDS("mamRERw.rds")
-
-#make average and gene tree plots
-noneutherians <- c("Platypus","Wallaby","Tasmanian_devil","Opossum")
-par(mfrow=c(1,2))
-avgtree=plotTreeHighlightBranches(toyTrees$masterTree, outgroup=noneutherians,
-                                  hlspecies=c("Vole","Squirrel"), hlcols=c("blue","red"), 
-                                  main="Average tree") #plot average tree
-bend3tree=plotTreeHighlightBranches(toyTrees$trees$BEND3, outgroup=noneutherians, 
-                                    hlspecies=c("Vole","Squirrel"), hlcols=c("blue","red"), 
-                                    main="BEND3 tree") #plot individual gene tree
-
-#plot RERs
-par(mfrow=c(1,1))
-phenvExample <- foreground2Paths(c("Vole","Squirrel"),toyTrees,clade="terminal")
-plotRers(mamRERw,"BEND3",phenv=phenvExample) #plot RERs
-
-#plot RERs as tree
-par(mfrow=c(1,1))
-bend3rers = returnRersAsTree(toyTrees, mamRERw, "BEND3", plot = TRUE,
-                             phenv=phenvExample) #plot RERs
-
-strwrap(gsub(":",write.tree(bend3rers),replacement=": "))
-
-multirers = returnRersAsTreesAll(toyTrees,mamRERw)
-write.tree(multirers, file='toyRERs.nwk', tree.names=TRUE)
-
-#visualize RERs along branches as a heatmap
-newbend3rers = treePlotRers(treesObj=toyTrees, rermat=mamRERw, index="BEND3", 
-                            type="c", nlevels=9, figwid=10)
-
-
-
-
-
-
-
-##########
 cd /hb/home/rdekayne/09_trees/alignment_test_allgenes3_out/astral_run
-cp output_species_tree.newick output_species_tree_only_topology.newick
+cp output_species_tree.newick test.newick
 
-#remove extra info
+cd /hb/home/rdekayne/11_RERconverge/test_run
+
+#remove extra info from .newick and add branch lengths of 1 everywhere
 
 ## Phangorn_tree_building.R
 
@@ -909,7 +869,7 @@ library(RERconverge)
 MasterTree <- paste("/hb/home/rdekayne/09_trees/alignment_test_allgenes3_out/astral_run/test.newick")
 
 # Path to multi-species gene alignments
-NucInFrameAlignment <- paste("/hb/home/rdekayne/09_trees/alignment_test_renamed")
+NucInFrameAlignment <- paste("/hb/home/rdekayne/09_trees/alignment_for_RERconverge")
 
 # Path to output files
 NucOutput <- paste("/hb/home/rdekayne/11_RERconverge/test_run/NucGeneTrees.trees")
@@ -930,13 +890,13 @@ estimatePhangornTreeAll(alndir = NucInFrameAlignment, treefile = MasterTree, out
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=4GB 
 
-module load RERconverge
+module load rerconverge
 Rscript --vanilla /hb/home/rdekayne/11_RERconverge/test_run/Phangorn_tree_building.R
 
 touch ./Phangorn.done
 
 ##run
-module load RERconverge
+module load rerconverge
 sbatch 11.1_Phangorn_tree_building.sh
 
 #
@@ -946,3 +906,25 @@ sed "=" gene_names_original.txt | sed "N;s/\n/ /" > gene_names_and_numbers.txt
 sed 's/gene_//g' allvalues_test.csv > allvalues_test_gene_numbers.csv
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+salloc --partition=128x24 --time=01:00:00 --mem=500M --cpus-per-task=1 --ntasks=1
+export | grep SLURM
+ssh $SLURM_NODELIST
+
+#in a new window
+#ssh -XY -N -L 2022:hbcomp-026:22 rdekayne@hb.ucsc.edu &
+#56030
+
+ssh -XY -p 2022 localhost
+module load rerconverge
