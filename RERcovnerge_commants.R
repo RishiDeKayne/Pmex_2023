@@ -63,8 +63,12 @@ labs2d[labs2d==0] = NA
 edgelabels(labs2d, col = 'black', bg = 'transparent', adj = c(0.5,-0.5),cex = 0.4,frame='n')
 dev.off()
 
-phenvMarine2b=tree2Paths(marineb2b, toyTrees)
-corMarine=correlateWithBinaryPhenotype(mamRERw, phenvMarine2b, min.sp=10, min.pos=2,weighted="auto")
+#phenvMarine2b=tree2Paths(marineb2b, toyTrees)
+#corMarine=correlateWithBinaryPhenotype(mamRERw, phenvMarine2b, min.sp=10, min.pos=2,weighted="auto")
+
+phenvMarine2=foreground2Paths(marineextantforeground, toyTrees, clade="all")
+corMarine=correlateWithBinaryPhenotype(mamRERw, phenvMarine2, min.sp=10, min.pos=2,weighted="auto")
+
 head(corMarine[order(corMarine$P),])
 allvalues_test_DF <- as.data.frame(corMarine[order(corMarine$P),])
 write.table(allvalues_test_DF, "allvalues_test.csv", sep = ',', quote = FALSE)
