@@ -26,9 +26,9 @@ par(mfrow=c(1,1))
 gene_12686rers = returnRersAsTree(toyTrees, mamRERw, "gene_12686", plot = TRUE, phenv=phenvExample) #plot RERs
 dev.off()
 
-strwrap(gsub(":",write.tree(gene_12686rers),replacement=": "))
+#strwrap(gsub(":",write.tree(gene_12686rers),replacement=": "))
 
-write.tree(gene_12686rers, file='gene_12686rersRER.nwk')
+#write.tree(gene_12686rers, file='gene_12686rersRER.nwk')
 
 multirers = returnRersAsTreesAll(toyTrees,mamRERw)
 write.tree(multirers, file='toyRERs.nwk', tree.names=TRUE)
