@@ -459,12 +459,23 @@ touch 14.filt.done
 ##run
 sbatch 04.6_H2S_genotype_extra_filt_to14.sh
 
+#40919842 SNPs
 
 #check missing data information
-plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz --missing --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out missing_AN28.out
+plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz --missing --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out missing_AN28.out
+
+tabix /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
 
 #generate types of sites
-python codingSiteTypes.py -a annotation.gff3.gz -f gff -r reference.fasta.gz -v variants.vcf.gz --ignoreConflicts | bgzip > output.coding_site_types.tsv.gz
+#take filtered gff from 08_CONSENSUS
+#filtered.xhel.gff
+
+#now filter for only those chromosomes in .geno file:
+grep -f ../04_H2S_genotyping/scaf.list ../08_consensus/filtered.xhel.gff > ../08_consensus/filtered_scaf.xhel.gff
+
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+conda activate /hb/home/rdekayne/envs/general
+python ../genomics_general/codingSiteTypes.py -a ../08_consensus/filtered_scaf.xhel.gff -f gff3 -r /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna -v /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz --ignoreConflicts | bgzip > output.coding_site_types.tsv.gz
 
 #make bed file of 4d sites
 gunzip -c output.coding_site_types.tsv.gz | awk 'BEGIN {OFS="\t"}; $5=="4" {print($1,$2-1,$2)}' > output.4Dsites.bed
