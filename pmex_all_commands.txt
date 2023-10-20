@@ -466,7 +466,8 @@ plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_min
 #generate types of sites
 python codingSiteTypes.py -a annotation.gff3.gz -f gff -r reference.fasta.gz -v variants.vcf.gz --ignoreConflicts | bgzip > output.coding_site_types.tsv.gz
 
-
+#make bed file of 4d sites
+gunzip -c output.coding_site_types.tsv.gz | awk 'BEGIN {OFS="\t"}; $5=="4" {print($1,$2-1,$2)}' > output.4Dsites.bed
 
 #################
 #     05 PCA
