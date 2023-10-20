@@ -398,7 +398,7 @@ sbatch 04.4_H2S_genotype_extra_filt.sh
 
 module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools
 
-#max 10% missing filter for SNPs
+#no missing filter for SNPs
 bcftools filter -Oz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz -e 'INFO/MAC < 1 | AN < 48' | bcftools view -m2 -M2 -v snps | bcftools sort -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.vcf.gz
 
 bcftools view -H /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN43.vcf.gz | wc -l
@@ -413,6 +413,56 @@ sbatch 04.5_H2S_genotype_extra_filt.sh
 bcftools reheader --samples reheader.txt -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz  /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.vcf.gz
 
 plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz --missing --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out missing_AN48.out
+
+#decided we should filter vcf to retain only sulf/nonsulf pairs
+#remove the following indivs: exclude.samples.txt
+MX15-747
+pso
+vg
+lluvia
+ixta
+rosita
+bonita
+banos
+gloria
+SLP74-003
+
+#start with file that is not renamed - rename and then filter individuals out then do mac1 and no missing data
+#/hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30.vcf.gz
+
+##04.6_H2S_genotype_extra_filt_to14.sh
+#!/bin/bash
+#SBATCH --job-name=filt
+#SBATCH --time=0-12:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=geno_filt2.%j.out # output file
+#SBATCH --error=geno_filt2.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=60GB 
+
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools
+
+#reheader raw concat vcf
+bcftools reheader --samples /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/reheader.txt -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30.renamed.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30.vcf.gz
+
+#remove individuals
+bcftools view -S exclude.samples.txt -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30.renamed.vcf.gz
+
+bcftools filter -Oz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.vcf.gz -e 'INFO/MAC < 1 | AN < 28' | bcftools view -m2 -M2 -v snps | bcftools sort -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
+
+bcftools view -H /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz | wc -l
+
+touch 14.filt.done
+
+##run
+sbatch 04.6_H2S_genotype_extra_filt_to14.sh
+
+
+
+plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz --missing --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out missing_AN28.out
+
+
 
 #################
 #     05 PCA
