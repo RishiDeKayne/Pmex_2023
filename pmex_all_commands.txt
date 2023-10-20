@@ -447,7 +447,7 @@ module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools 
 bcftools reheader --samples /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/reheader.txt -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30.renamed.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30.vcf.gz
 
 #remove individuals
-bcftools view -S ^exclude.samples.txt -Oz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30.renamed.vcf.gz | bcftools sort -O -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.vcf.gz
+bcftools view -S ^./exclude.samples.txt -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30.renamed.vcf.gz
 
 bcftools filter -Oz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.vcf.gz -e 'INFO/MAC < 1 | AN < 28' | bcftools view -m2 -M2 -v snps | bcftools sort -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
 
