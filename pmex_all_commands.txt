@@ -513,9 +513,9 @@ gunzip -c output.coding_site_types.tsv.gz | awk 'BEGIN {OFS="\t"}; $5=="0" {prin
 
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 
-bcftools view -R output.0Dsites.bed -Oz -o ./H2S_14_mindepth7_minqual30.renamed.0D.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.vcf.gz
+bcftools view -R output.0Dsites.bed -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
 
-bcftools view -R output.0Dsites_samepos.bed -Oz -o ./H2S_14_mindepth7_minqual30.renamed.0D_test.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.vcf.gz
+bcftools view -R output.0Dsites_samepos.bed -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D_test.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
 
 touch 0D.done
 
