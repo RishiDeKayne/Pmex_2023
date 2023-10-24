@@ -805,7 +805,9 @@ tabix -p vcf consensus0D2D.diplo.gz
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=40GB 
 
-python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -g /hb/home/rdekayne/08_consensus/consensus.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/08_consensus/consensus.diplo.fasta.gz
+#python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -g /hb/home/rdekayne/08_consensus/consensus.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/08_consensus/consensus.diplo.fasta.gz
+
+python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -g /hb/home/rdekayne/08_consensus/consensus0D2D.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/08_consensus/consensus0D2D.diplo.fasta.gz
 
 touch ./consensus_seq.done
 
