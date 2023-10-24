@@ -722,7 +722,9 @@ sbatch 07.1_neighbour_net_convert_and_net.sh
 
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 
-python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz --skipIndels | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.geno.gz
+#python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz --skipIndels | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.geno.gz
+
+python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D2D.vcf.gz --skipIndels | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D2D.consensus.geno.gz
 
 touch /hb/home/rdekayne/08_consensus/geno.done
 
@@ -775,13 +777,22 @@ agat_sp_keep_longest_isoform.pl -gff filtered.xhel.gff -o filtered_w_longest.xhe
 #now filter for only those chromosomes in .geno file:
 grep -f ../04_H2S_genotyping/scaf.list filtered_w_longest.xhel.gff > filtered_w_longest_scaf.xhel.gff
 
+#do file conversions for input into cds script
 cp ../04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.geno.gz ./consensus.geno.gz
 
+cp ../04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D2D.consensus.geno.gz ./consensus0D2D.geno.gz
+
 tabix -p vcf consensus.geno.gz
+
+tabix -p vcf consensus0D2D.geno.gz
 
 python ../genomics_general/filterGenotypes.py --threads 10 -i consensus.geno.gz --outputGenoFormat diplo | bgzip > consensus.diplo.gz
 
 tabix -p vcf consensus.diplo.gz
+
+python ../genomics_general/filterGenotypes.py --threads 10 -i consensus0D2D.geno.gz --outputGenoFormat diplo | bgzip > consensus0D2D.diplo.gz
+
+tabix -p vcf consensus0D2D.diplo.gz
 
 # 08.2_get_consensus_fasta.sh
 #!/bin/bash
