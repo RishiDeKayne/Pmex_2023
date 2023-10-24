@@ -455,7 +455,6 @@ bcftools view -H /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth
 
 touch 14.filt.done
 
-
 ##run
 sbatch 04.6_H2S_genotype_extra_filt_to14.sh
 
@@ -499,7 +498,6 @@ sbatch 04.7_H2S_14_vcf_stats.sh
 gunzip -c output.coding_site_types.tsv.gz | awk 'BEGIN {OFS="\t"}; $5=="0" {print($1,$2-1,$2)}' > output.0Dsites.bed
 gunzip -c output.coding_site_types.tsv.gz | awk 'BEGIN {OFS="\t"}; $5=="0" {print($1,$2,$2)}' > output.0Dsites_samepos.bed
 
-
 ##04.8_H2S_14_vcf_0D.sh
 #!/bin/bash
 #SBATCH --job-name=0D
@@ -516,6 +514,10 @@ module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard
 bcftools view -R output.0Dsites.bed -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
 
 bcftools view -R output.0Dsites_samepos.bed -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D_test.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
+
+bcftools view -H /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D.vcf.gz | wc -l
+
+bcftools view -H /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D_test.vcf.gz  | wc -l
 
 touch 0D.done
 
