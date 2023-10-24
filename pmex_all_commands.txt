@@ -841,10 +841,11 @@ sbatch 08.3_get_consensus_phylip.sh
 #     09 TREES
 #################
 
-git clone --recursive https://github.com/BenoitMorel/ParGenes.git
-cd ParGenes
-module load cmake/3.25.3
-./install.sh 10
+#install pargenes
+#git clone --recursive https://github.com/BenoitMorel/ParGenes.git
+#cd ParGenes
+#module load cmake/3.25.3
+#./install.sh 10
 
 #want to make a species tree first using astral
 zcat ../08_consensus/consensus.diplo.fasta.gz | awk -v RS= '{close("gene_" i ".txt"); i++}{print > ("gene_" i ".txt")}'
@@ -913,6 +914,87 @@ sbatch 9.1_get_main_tree.sh
 cp alignment_test_out/astral_run/output_species_tree.newick .
 
 ./rename_tree.sh output_species_tree.newick
+
+#now run on all gene trees:
+mkdir all_genes_run
+cd gene_alignments
+ls *.txt > ../gene_names.txt
+cat ../gene_names.txt | while read line 
+do
+cut -d'_' -f1 ./${line} > ../all_genes_run/${line}
+done
+
+# 9.2_get_main_tree_all_genes.sh
+#!/bin/bash
+#SBATCH --job-name=tree
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=tree2.%j.out # output file
+#SBATCH --error=tree2.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=40GB 
+
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+
+python ../ParGenes/pargenes/pargenes.py -a ./all_genes_run -o ./alignment_test_allgenes_out --cores 64 -d nt -m --job-failure-fatal --use-astral
+
+touch spp_tree2.done
+
+##run
+sbatch 9.2_get_main_tree_all_genes.sh
+
+cp alignment_test_allgenes3_out/astral_run/output_species_tree.newick ./output_species_tree_all_genes.newick
+./rename_tree.sh output_species_tree_all_genes.newick
+
+########0D2D astral
+mkdir /hb/home/rdekayne/08_consensus/0D2D && cd /hb/home/rdekayne/08_consensus/0D2D
+
+#want to make a species tree first using astral
+zcat /hb/home/rdekayne/08_consensus/consensus0D2D.diplo.fasta.gz | awk -v RS= '{close("gene_" i ".txt"); i++}{print > ("gene_" i ".txt")}'
+
+mkdir -p gene_alignments
+
+mv *.txt gene_alignments/
+ls gene_alignments/*.txt > gene_names.txt
+
+touch ccount.txt && touch ncount.txt
+cat gene_names.txt | while read line 
+do
+echo ${line}
+head -n2 ${line} | tail -n1 | wc -c >> ccount.txt
+head -n2 ${line} | tail -n1 | tr -cd 'N' | wc -c >> ncount.txt
+done 
+
+paste gene_names.txt ncount.txt ccount.txt > genes_N_count.txt
+
+#remove genes with 0 variants
+#get distribution of variants per genome
+awk '{if(($2) < $3) {print $0, ($3-$2-1)}}' genes_N_count.txt > vars.txt
+wc -l vars.txt
+#23732
+
+awk '{if($4>0) {print $0}}' vars.txt | cut -f 1 > all_variant_genes.txt
+wc -l all_variant_genes.txt
+#21941
+
+awk '{if($4>15) {print $0}}' vars.txt | cut -f 1 > RER_genes.txt
+wc -l RER_genes.txt
+#19094
+
+mkdir astral_gene_alignments
+
+sed 's/gene_alignments\///g' all_variant_genes.txt > all_variant_genes2.txt
+
+cd astral_gene_alignments
+
+cat ../all_variant_genes2.txt | while read line 
+do
+cut -d'_' -f1 ../gene_alignments/${line} > ./${line}
+done
+
+cd ../ && ls astral_gene_alignments/* | wc -l
+#1218
 
 #now run on all gene trees:
 mkdir all_genes_run
