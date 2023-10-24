@@ -494,7 +494,7 @@ module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard
 conda activate /hb/home/rdekayne/envs/general
 sbatch 04.7_H2S_14_vcf_stats.sh
 
-#make bed file of 4d sites
+#make bed file of 0d sites
 gunzip -c output.coding_site_types.tsv.gz | awk 'BEGIN {OFS="\t"}; $5=="0" {print($1,$2-1,$2)}' > output.0Dsites.bed
 gunzip -c output.coding_site_types.tsv.gz | awk 'BEGIN {OFS="\t"}; $5=="0" {print($1,$2,$2)}' > output.0Dsites_samepos.bed
 
@@ -511,9 +511,9 @@ gunzip -c output.coding_site_types.tsv.gz | awk 'BEGIN {OFS="\t"}; $5=="0" {prin
 
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 
-bcftools view -R output.0Dsites.bed -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
+bcftools view -T output.0Dsites.bed -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
 
-bcftools view -R output.0Dsites_samepos.bed -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D_test.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
+bcftools view -T output.0Dsites_samepos.bed -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D_test.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
 
 bcftools view -H /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D.vcf.gz | wc -l
 
@@ -524,6 +524,32 @@ touch 0D.done
 ##run
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 sbatch 04.8_H2S_14_vcf_0D.sh
+
+
+gunzip -c output.coding_site_types.tsv.gz | awk 'BEGIN {OFS="\t"}; $5<"4" {print($1,$2-1,$2)}' > output.0D_2Dsites.bed
+
+##04.9_H2S_14_vcf_0D2D.sh
+#!/bin/bash
+#SBATCH --job-name=0D2D
+#SBATCH --time=0-12:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=0D.%j.out # output file
+#SBATCH --error=0D.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=20GB 
+
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+
+bcftools view -T output.0D_2Dsites.bed -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D2D.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
+
+bcftools view -H /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D2D.vcf.gz | wc -l
+
+touch 0D2D.done
+
+##run
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+sbatch 04.9_H2S_14_vcf_0D2D.sh
 
 #################
 #     05 PCA
