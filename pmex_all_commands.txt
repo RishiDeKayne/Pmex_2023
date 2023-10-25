@@ -1027,7 +1027,7 @@ cd /hb/home/rdekayne/09_trees/0D2D
 
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 
-python ../ParGenes/pargenes/pargenes.py -a /hb/home/rdekayne/08_consensus/0D2D/astral_gene_alignments -o /hb/home/rdekayne/09_trees/0D2D/all_genes_run_0D2D_out --cores 64 -d nt -m --job-failure-fatal --use-astral
+python ../../ParGenes/pargenes/pargenes.py -a /hb/home/rdekayne/08_consensus/0D2D/astral_gene_alignments -o /hb/home/rdekayne/09_trees/0D2D/all_genes_run_0D2D_out --cores 64 -d nt -m --job-failure-fatal --use-astral
 
 touch spp_tree_all_genes.done
 
