@@ -978,6 +978,7 @@ awk '{if($4>0) {print $0}}' vars.txt | cut -f 1 > all_variant_genes.txt
 wc -l all_variant_genes.txt
 #21941
 
+#now make set of gene alignments for full gene tree
 awk '{if($4>15) {print $0}}' vars.txt | cut -f 1 > RER_genes.txt
 wc -l RER_genes.txt
 #19094
@@ -994,38 +995,46 @@ cut -d'_' -f1 ../gene_alignments/${line} > ./${line}
 done
 
 cd ../ && ls astral_gene_alignments/* | wc -l
-#1218
+#21941
 
-#now run on all gene trees:
-mkdir all_genes_run
-cd gene_alignments
-ls *.txt > ../gene_names.txt
-cat ../gene_names.txt | while read line 
+#and then the same for the RER converge genes
+mkdir RER_gene_alignments
+
+sed 's/gene_alignments\///g' RER_genes.txt > RER_genes2.txt
+
+cd RER_gene_alignments
+
+cat ../RER_genes2.txt | while read line 
 do
-cut -d'_' -f1 ./${line} > ../all_genes_run/${line}
+cut -d'_' -f1 ../gene_alignments/${line} > ./${line}
 done
 
-# 9.2_get_main_tree_all_genes.sh
+cd ../ && ls RER_gene_alignments/* | wc -l
+#19094
+
+cd /hb/home/rdekayne/09_trees/0D2D
+
+# 9.3_get_main_tree_all_genes_0D2D.sh
 #!/bin/bash
 #SBATCH --job-name=tree
 #SBATCH --time=0-24:00:00
 #SBATCH --partition=128x24
-#SBATCH --output=tree2.%j.out # output file
-#SBATCH --error=tree2.%j.err # error file
+#SBATCH --output=tree.%j.out # output file
+#SBATCH --error=tree.%j.err # error file
 #SBATCH -N 1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=40GB 
 
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 
-python ../ParGenes/pargenes/pargenes.py -a ./all_genes_run -o ./alignment_test_allgenes_out --cores 64 -d nt -m --job-failure-fatal --use-astral
+python ../ParGenes/pargenes/pargenes.py -a /hb/home/rdekayne/08_consensus/0D2D/astral_gene_alignments -o /hb/home/rdekayne/09_trees/0D2D/all_genes_run_0D2D_out --cores 64 -d nt -m --job-failure-fatal --use-astral
 
-touch spp_tree2.done
+touch spp_tree_all_genes.done
 
 ##run
-sbatch 9.2_get_main_tree_all_genes.sh
+sbatch 9.3_get_main_tree_all_genes_0D2D.sh
 
-cp alignment_test_allgenes3_out/astral_run/output_species_tree.newick ./output_species_tree_all_genes.newick
+cp /hb/home/rdekayne/09_trees/0D2D/all_genes_run_0D2D_out/astral_run/output_species_tree.newick /hb/home/rdekayne/09_trees/0D2D/output_species_tree_all_genes.newick
 ./rename_tree.sh output_species_tree_all_genes.newick
 
 #################
