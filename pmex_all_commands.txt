@@ -1070,33 +1070,16 @@ awk '$3!=1 {print}' gwas_plot_emp_total.txt > gwas_plot_emp_total_not1.txt
 11.	RERCONVERGE
 ####################
 
-cd /hb/home/rdekayne/09_trees
-#file goes name - N - C so want to make sure that N!=C
-awk '{if(($2+11) < $3) {print $0}}' genes_N_count.txt | cut -f 1 > RER_genes.txt
+mkdir -p /hb/home/rdekayne/11_RERconverge/RER_0D2D && cd /hb/home/rdekayne/11_RERconverge/RER_0D2D
 
-wc -l RER_genes.txt 
-#21046 RER_genes.txt
-
-mkdir alignment_for_RERconverge2
-
-sed 's/gene_alignments\///g' RER_genes.txt > RER_genes2.txt
-
-cd gene_alignments
-
-cat ../RER_genes2.txt | while read line 
-do
-cut -d'_' -f1 ./${line} > ../alignment_for_RERconverge2/${line}
-done
-
-cd ../ && ls alignment_for_RERconverge2/* | wc -l
-#21046
-
-cd /hb/home/rdekayne/09_trees/alignment_test_allgenes3_out/astral_run
-cp output_species_tree.newick test.newick
-
-cd /hb/home/rdekayne/11_RERconverge/test_run
+cp /hb/home/rdekayne/09_trees/0D2D/output_species_tree_all_genes.newick ./tree.tree
 
 #remove extra info from .newick and add branch lengths of 1 everywhere
+#(CR15-031,(CR15-039,(((FL15-032,FL15-043):1,(esperanza,vs):1):1,((MX15-734,MX15-627):1,((MX15-706,MX15-698):1,((MX15-739,MX15-650):1,(FL15-049,FL15-025):1):1):1):1):1):1); 
+
+#alignments are here: /hb/home/rdekayne/08_consensus/0D2D/RER_gene_alignments/
+ls /hb/home/rdekayne/08_consensus/0D2D/RER_gene_alignments/* | wc -l
+#19094
 
 ## Phangorn_tree_building.R
 
@@ -1107,13 +1090,13 @@ library(devtools)
 library(RERconverge)
 
 # Path to master tree topology. This tree must have branch lengths set to 1
-MasterTree <- paste("/hb/home/rdekayne/09_trees/alignment_test_allgenes3_out/astral_run/test.newick")
+MasterTree <- paste("/hb/home/rdekayne/11_RERconverge/RER_0D2D/tree.tree")
 
 # Path to multi-species gene alignments
-NucInFrameAlignment <- paste("/hb/home/rdekayne/09_trees/alignment_for_RERconverge")
+NucInFrameAlignment <- paste("/hb/home/rdekayne/08_consensus/0D2D/RER_gene_alignments")
 
 # Path to output files
-NucOutput <- paste("/hb/home/rdekayne/11_RERconverge/test_run/NucGeneTrees.trees")
+NucOutput <- paste("/hb/home/rdekayne/11_RERconverge/RER_0D2D/NucGeneTrees.trees")
 
 # Estimate branch lengths for all sequences in the alignment directories for mitochondrial and nuclear genes
 # The general time reversible model (GTR), appropriate for DNA sequences, was used as the substitution model
@@ -1141,7 +1124,7 @@ module load rerconverge
 sbatch 11.1_Phangorn_tree_building.sh
 
 #
-grep "Extracting mRNA" /hb/home/rdekayne/08_consensus/consensus.294237.err | sed 's/    Extracting mRNA //g' | cut -d ':' -f1 > gene_names_original.txt
+grep "Extracting mRNA" /hb/home/rdekayne/08_consensus/0D2D/consensus.294237.err | sed 's/    Extracting mRNA //g' | cut -d ':' -f1 > gene_names_original.txt
 sed "=" gene_names_original.txt | sed "N;s/\n/ /" > gene_names_and_numbers.txt
 
 sed 's/gene_//g' allvalues_test.csv > allvalues_test_gene_numbers.csv
