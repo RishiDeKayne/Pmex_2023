@@ -1105,6 +1105,8 @@ estimatePhangornTreeAll(alndir = NucInFrameAlignment, treefile = MasterTree, out
 
 #keeps stopping on /hb/home/rdekayne/08_consensus/0D2D/RER_gene_alignments/gene_22367.txt so remove and re-run
 #also this gene /hb/home/rdekayne/08_consensus/0D2D/RER_gene_alignments/gene_5302.txt
+#/hb/home/rdekayne/08_consensus/0D2D/RER_gene_alignments/gene_8757.txt
+
 # 11.1_Phangorn_tree_building.sh
 #!/bin/bash
 #SBATCH --job-name=Phangorn
