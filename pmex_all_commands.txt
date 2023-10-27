@@ -1135,12 +1135,17 @@ sed "=" gene_names_original.txt | sed "N;s/\n/ /" > gene_names_and_numbers.txt
 #parse output
 sed 's/gene_//g' allvalues_RER.csv > allvalues_RER_gene_numbers.csv
 
+#get gff in good format
+cp ../../08_consensus/filtered_scaf.xhel.gff .
 
+awk '{print $3}' filtered_scaf.xhel.gff | head
 
+awk '{if($3=="mRNA") {print $0}}' filtered_scaf.xhel.gff > filtered_scaf_mRNA.xhel.gff
 
+cut -f1 filtered_scaf.xhel.gff > gene_name_from_gff.txt
+cut -f9 filtered_scaf.xhel.gff > test.txt
 
-
-
+cat test.txt | awk 'BEGIN{FS=";"} {print $8}' | sed 's/product=//g' | head
 
 
 
