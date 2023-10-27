@@ -1,5 +1,5 @@
 library(RERconverge)
-toyTrees=readTrees("/hb/home/rdekayne/11_RERconverge/test_run/NucGeneTrees.trees")
+toyTrees=readTrees("/hb/home/rdekayne/11_RERconverge/RER_0D2D/NucGeneTrees.trees")
 
 mamRERw = getAllResiduals(toyTrees, transform = "sqrt", weighted = T, scale = T)
 
@@ -7,21 +7,21 @@ saveRDS(mamRERw, file="mamRERw.rds")
 newmamRERw = readRDS("mamRERw.rds")
 
 #make average and gene tree plots
-pdf(file="test_plot1.pdf", width=8, height=8)
+pdf(file="RER_plot1.pdf", width=8, height=8)
 par(mfrow=c(1,2))
-avgtree=plotTreeHighlightBranches(toyTrees$masterTree, hlspecies=c("pso", "lluvia", "esperanza", "banos", "gloria", "FL15-032", "CR15-031", "MX15-627", "MX15-706", "FL15-025", "MX15-650", "MX15-747"), hlcols=c("blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue"), main="Average tree") #plot average tree
-gene_12686=plotTreeHighlightBranches(toyTrees$trees$gene_12686, hlspecies=c("pso", "lluvia", "esperanza", "banos", "gloria", "FL15-032", "CR15-031", "MX15-627", "MX15-706", "FL15-025", "MX15-650", "MX15-747"), hlcols=c("blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue"), main="BEND3 tree") #plot individual gene tree
+avgtree=plotTreeHighlightBranches(toyTrees$masterTree, hlspecies=c("CR15-031", "FL15-032", "esperanza", "MX15-627", "MX15-706", "MX15-650", "FL15-025"), hlcols=c("blue", "blue", "blue", "blue", "blue", "blue", "blue"), main="Average tree") #plot average tree
+gene_12686=plotTreeHighlightBranches(toyTrees$trees$gene_12686, hlspecies=c("CR15-031", "FL15-032", "esperanza", "MX15-627", "MX15-706", "MX15-650", "FL15-025"), hlcols=c("blue", "blue", "blue", "blue", "blue", "blue", "blue"), main="BEND3 tree") #plot individual gene tree
 dev.off()
 
 #plot RERs
-pdf(file="test_plot2.pdf", width=8, height=8)
+pdf(file="RER_plot2.pdf", width=8, height=8)
 par(mfrow=c(1,1))
-phenvExample <- foreground2Paths(c("pso", "lluvia", "esperanza", "banos", "gloria", "FL15-032", "CR15-031", "MX15-627", "MX15-706", "FL15-025", "MX15-650", "MX15-747"),toyTrees,clade="terminal")
+phenvExample <- foreground2Paths(c("CR15-031", "FL15-032", "esperanza", "MX15-627", "MX15-706", "MX15-650", "FL15-025"),toyTrees,clade="terminal")
 plotRers(mamRERw,"gene_12686",phenv=phenvExample) #plot RERs
 dev.off()
 
 #plot RERs as tree
-pdf(file="test_plot3.pdf", width=8, height=8)
+pdf(file="RER_plot3.pdf", width=8, height=8)
 par(mfrow=c(1,1))
 gene_12686rers = returnRersAsTree(toyTrees, mamRERw, "gene_12686", plot = TRUE, phenv=phenvExample) #plot RERs
 dev.off()
@@ -34,7 +34,7 @@ multirers = returnRersAsTreesAll(toyTrees,mamRERw)
 write.tree(multirers, file='toyRERs.nwk', tree.names=TRUE)
 
 #visualize RERs along branches as a heatmap
-pdf(file="test_plot4.pdf", width=20, height=20)
+pdf(file="RER_plot4.pdf", width=20, height=20)
 newgene_12686rers = treePlotRers(treesObj=toyTrees, rermat=mamRERw, index="gene_12686", type="c", nlevels=9, figwid=2)
 dev.off()
 
@@ -43,13 +43,13 @@ dev.off()
 BINARY TRAIT ANALYSIS
 ######################
 
-marineextantforeground = c("pso", "lluvia", "esperanza", "banos", "gloria", "FL15-032", "CR15-031", "MX15-627", "MX15-706", "FL15-025", "MX15-650", "MX15-747")
+marineextantforeground = c("CR15-031", "FL15-032", "esperanza", "MX15-627", "MX15-706", "MX15-650", "FL15-025")
 marineb2a = foreground2Tree(marineextantforeground, toyTrees, clade="ancestral")
 marineb2b = foreground2Tree(marineextantforeground, toyTrees, clade="terminal")
 marineb2c = foreground2Tree(marineextantforeground, toyTrees, clade="all")
 marineb2d = foreground2Tree(marineextantforeground, toyTrees, clade="all", weighted = TRUE)
 
-pdf(file="test_plot5.pdf", width=20, height=20)
+pdf(file="RER_plot5.pdf", width=20, height=20)
 par(mfrow=c(2,2))
 plot(marineb2a,cex=0.6,main="ancestral")
 plot(marineb2b,cex=0.6,main="terminal")
@@ -71,12 +71,12 @@ corMarine=correlateWithBinaryPhenotype(mamRERw, phenvMarine2, min.sp=10, min.pos
 
 head(corMarine[order(corMarine$P),])
 allvalues_test_DF <- as.data.frame(corMarine[order(corMarine$P),])
-write.table(allvalues_test_DF, "allvalues_test.csv", sep = ',', quote = FALSE)
+write.table(allvalues_test_DF, "allvalues_RER.csv", sep = ',', quote = FALSE)
 
-pdf(file="test_plot6.pdf", width=8, height=8)
-plotRers(mamRERw,"gene_4539",phenv=phenvMarine2b) 
+pdf(file="RER_plot6.pdf", width=8, height=8)
+plotRers(mamRERw,"gene_10262",phenv=phenvMarine2) 
 dev.off()
 
-pdf(file="test_plot7.pdf", width=8, height=8)
+pdf(file="RER_plot7.pdf", width=8, height=8)
 hist(corMarine$P, breaks=15, xlab="Kendall P-value", main="P-values for correlation between all genes and peno")
 dev.off()
