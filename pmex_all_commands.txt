@@ -610,6 +610,31 @@ touch /hb/home/rdekayne/05_PCA/filt.done
 sbatch 05.2_PCA_filt.sh
 #2640854 variants and 24 people pass filters and QC.
 
+# 05.3_PCA_unfilt_14.sh
+
+#!/bin/bash
+#SBATCH --job-name=pca
+#SBATCH --time=0-12:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=pca.%j.out # output file
+#SBATCH --error=pca.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=20GB 
+
+module load hb hb-gnu bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink
+
+mkdir -p /hb/home/rdekayne/05_PCA/0D2D
+
+cd /hb/home/rdekayne/05_PCA/0D2D
+
+plink --vcf /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.0D2D.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out 14_unfilt_out
+
+touch /hb/home/rdekayne/05_PCA/14.done
+
+##run
+sbatch 05.3_PCA_unfilt_14.sh
+#58097289 variants and 24 people pass filters and QC.
 
 #################
 #     06 ADMIXTURE
