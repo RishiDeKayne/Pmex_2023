@@ -634,7 +634,7 @@ touch /hb/home/rdekayne/05_PCA/14.done
 
 ##run
 sbatch 05.3_PCA_unfilt_14.sh
-#58097289 variants and 24 people pass filters and QC.
+#1484493 variants and 14 people pass filters and QC.
 
 #################
 #     06 ADMIXTURE
