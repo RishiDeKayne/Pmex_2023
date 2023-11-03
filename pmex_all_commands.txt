@@ -1221,7 +1221,7 @@ module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard
 conda activate /hb/home/rdekayne/envs/general
 sbatch 12.1_get_consensus_fasta.sh
 
-
+split -l 5000 enhancers_rer_input.csv
 
 
 
