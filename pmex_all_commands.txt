@@ -1172,19 +1172,63 @@ paste gene_name_from_gff.txt gene_product_from_gff.txt > gene_name_and_product_f
 
 cat test.txt | awk 'BEGIN{FS=";"} {print $8}' | sed 's/product=//g' | head
 
+####################
+12.	REGULATORY
+####################
+
+#want to repeat the RER converge analysis but using only regulatory regions
+#first need to concatenate promotor and enhancer files and make fake gff that can be used to extract the consensus sequences
+mkdir -p /hb/home/rdekayne/12_regulatory && cd /hb/home/rdekayne/12_regulatory
+
+cat promoters_500bp_xmac.bed putativeEnhancerPeaks_xmac_10.27.23.bed > regulatory_regions.bed
+
+NC_045672.1	6547	7047	116719005	100	-
+
+NC_045672.1	Gnomon	exon	1111	2701	.	-	.	ID=exon-XM_032561458.1-2;Parent=rna-XM_032561458.1;Dbxref=GeneID:116719005,Genbank:XM_032561458.1;gbkey=mRNA;gene=LOC116719005;product=uncharacterized LOC116719005%2C transcript variant X2;transcript_id=XM_032561458.1
+
+NC_045672.1	Gnomon	gene	6547	7047	.	-	.	ID=LOC01
+NC_045672.1	Gnomon	mRNA	6547	7047	.	-	.	ID=rna-XM_032561458.1;Parent=LOC01
+NC_045672.1	Gnomon	exon	6547	7047	.	-	.	ID=exon-XM_032561458.1;Parent=rna-XM_032561458.1
+NC_045672.1	Gnomon	cds	6547	7047	.	-	.	ID=cds-XM_032561458.1;Parent=rna-XM_032561458.1
+
+python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/12_regulatory/test.gff -g /hb/home/rdekayne/08_consensus/consensus.diplo.gz --ploidy 1 --outFormat fasta -o ./test.fasta.gz
+
+python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz --skipIndels | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.geno.gz
+
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+
+bcftools filter -Oz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.vcf.gz -e 'INFO/MAC < 1 | AN < 28' | bcftools view -m2 -M2 -v snps | bcftools sort -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
+
+bcftools view -T test.bed -Oz -o ./region_1.test.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
+
+cat /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna | bcftools consensus --regions-file test.bed --haplotype I --iupac-codes /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz > test.fa
+
+
+# 08.2_get_consensus_fasta.sh
+#!/bin/bash
+#SBATCH --job-name=consensus
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=consensus.%j.out # output file
+#SBATCH --error=consensus.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=40GB 
+
+#python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -g /hb/home/rdekayne/08_consensus/consensus.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/08_consensus/consensus.diplo.fasta.gz
+
+touch ./consensus_seq.done
+
+##run
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+conda activate /hb/home/rdekayne/envs/general
+sbatch 08.2_get_consensus_fasta.sh
 
 
 
 
 
 
-salloc --partition=128x24 --time=01:00:00 --mem=500M --cpus-per-task=1 --ntasks=1
-export | grep SLURM
-ssh $SLURM_NODELIST
 
-#in a new window
-#ssh -XY -N -L 2022:hbcomp-026:22 rdekayne@hb.ucsc.edu &
-#56030
 
-ssh -XY -p 2022 localhost
-module load rerconverge
+
