@@ -1184,24 +1184,24 @@ cat promoters_500bp_xmac.bed putativeEnhancerPeaks_xmac_10.27.23.bed > regulator
 
 NC_045672.1	6547	7047	116719005	100	-
 
-NC_045672.1	Gnomon	exon	1111	2701	.	-	.	ID=exon-XM_032561458.1-2;Parent=rna-XM_032561458.1;Dbxref=GeneID:116719005,Genbank:XM_032561458.1;gbkey=mRNA;gene=LOC116719005;product=uncharacterized LOC116719005%2C transcript variant X2;transcript_id=XM_032561458.1
-
-NC_045672.1	Gnomon	gene	6547	7047	.	-	.	ID=LOC01
-NC_045672.1	Gnomon	mRNA	6547	7047	.	-	.	ID=rna-XM_032561458.1;Parent=LOC01
-NC_045672.1	Gnomon	exon	6547	7047	.	-	.	ID=exon-XM_032561458.1;Parent=rna-XM_032561458.1
-NC_045672.1	Gnomon	cds	6547	7047	.	-	.	ID=cds-XM_032561458.1;Parent=rna-XM_032561458.1
-
-python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/12_regulatory/test.gff -g /hb/home/rdekayne/08_consensus/consensus.diplo.gz --ploidy 1 --outFormat fasta -o ./test.fasta.gz
-
-python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz --skipIndels | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.consensus.geno.gz
-
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 
-bcftools filter -Oz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30.renamed.vcf.gz -e 'INFO/MAC < 1 | AN < 28' | bcftools view -m2 -M2 -v snps | bcftools sort -Oz -o /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
+conda activate /hb/home/rdekayne/envs/general
 
-bcftools view -T test.bed -Oz -o ./region_1.test.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
+bcftools view /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz --regions NC_045672.1:6547-17047 > test_region_1.vcf
 
-cat /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna | bcftools consensus --regions-file test.bed --haplotype I --iupac-codes /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_24_mindepth7_minqual30_mac1_AN48.renamed.vcf.gz > test.fa
+python ../genomics_general/VCF_processing/parseVCF.py -i test_region_1.vcf --skipIndels | bgzip > test_region_1.consensus.geno.gz
+
+python ../genomics_general/filterGenotypes.py -i test_region_1.consensus.geno.gz --outputGenoFormat diplo | bgzip > test_region_1.consensus.diplo.gz
+
+python ../genomics_general/genoToSeq.py -g test_region_1.consensus.diplo.gz -f fasta -s testy.geno
+
+
+
+
+bcftools view -R test.bed -Oz -o ./region_1.test.vcf.gz /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz
+
+cat /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna | bcftools consensus --iupac-codes region_1.test.vcf.gz > test_consensus.fa
 
 
 # 08.2_get_consensus_fasta.sh
