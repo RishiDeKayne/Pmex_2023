@@ -1180,40 +1180,9 @@ cat test.txt | awk 'BEGIN{FS=";"} {print $8}' | sed 's/product=//g' | head
 #first need to concatenate promotor and enhancer files and make fake gff that can be used to extract the consensus sequences
 mkdir -p /hb/home/rdekayne/12_regulatory && cd /hb/home/rdekayne/12_regulatory
 
-cat promoters_500bp_xmac.bed putativeEnhancerPeaks_xmac_10.27.23.bed > regulatory_regions.bed
-
-NC_045672.1	6547	7047	116719005	100	-
-
-module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
-
-conda activate /hb/home/rdekayne/envs/general
-
-bcftools view /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz --regions NC_045672.1:6547-17047 > test_region_1.vcf
-
-python ../genomics_general/VCF_processing/parseVCF.py -i test_region_1.vcf --skipIndels | bgzip > test_region_1.consensus.geno.gz
-
-python ../genomics_general/filterGenotypes.py -i test_region_1.consensus.geno.gz --outputGenoFormat diplo | bgzip > test_region_1.consensus.diplo.gz
-
-python ../genomics_general/genoToSeq.py -g test_region_1.consensus.diplo.gz -f fasta -s testy.geno
-
-
-
-cat concat_bed_files.txt | while read line
-do
-region=$( echo "$line" |cut -f1 )
-filename=$( echo "$line" |cut -f2 )
-
-bcftools view /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz --regions${region} > ./tmp/${filename}.vcf
-
-python ../genomics_general/VCF_processing/parseVCF.py -i ./tmp/${filename}.vcf --skipIndels | bgzip > ./tmp/${filename}.vcf.geno.gz
-
-python ../genomics_general/filterGenotypes.py -i ./tmp/${filename}.vcf.geno.gz --outputGenoFormat diplo | bgzip > ./tmp/${filename}.vcf.diplo.gz
-
-python ../genomics_general/genoToSeq.py -g ./tmp/${filename}.vcf.diplo.gz -f fasta -s ./test_alignments/${filename}.fasta
-
-done
-
-
+mkdir regulatory_alignments
+mkdir tmp
+mkdir test_alignments
 
 # 12.1_get_consensus_fasta.sh
 #!/bin/bash
