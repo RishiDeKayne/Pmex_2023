@@ -1206,7 +1206,6 @@ cat test.txt | awk 'BEGIN{FS=";"} {print $8}' | sed 's/product=//g' | head
 #first need to concatenate promotor and enhancer files and make fake gff that can be used to extract the consensus sequences
 mkdir -p /hb/home/rdekayne/12_regulatory && cd /hb/home/rdekayne/12_regulatory
 
-mkdir regulatory_alignments
 mkdir tmp
 mkdir test_alignments
 
@@ -1249,7 +1248,41 @@ sbatch 12.1_get_consensus_fasta.sh
 
 split -l 5000 enhancers_rer_input.csv
 
+ls test_alignments/*.fasta > gene_names.txt
 
+touch ccount.txt
+cat gene_names.txt | while read line 
+do
+#echo ${line}
+head -n2 ${line} | tail -n1 | wc -c >> ccount.txt
+done 
+
+paste gene_names.txt ccount.txt > genes_N_count.txt
+
+sed -i 's/test_alignments\///g' genes_N_count.txt
+
+
+#remove genes with 0 variants
+awk '{if($2>1) {print $0}}' genes_N_count.txt | cut -f 1 > all_variant_genes.txt
+wc -l all_variant_genes.txt
+#21941
+
+#now make set of gene alignments for full gene tree
+awk '{if($2>16) {print $0}}' genes_N_count.txt | cut -f 1 > RER_genes.txt
+wc -l RER_genes.txt
+#8865
+
+mkdir regulatory_alignments
+
+cd regulatory_alignments
+
+cat ../RER_genes.txt | while read line 
+do
+cut -d'_' -f1 ../test_alignments/${line} > ./${line}
+done
+
+cd ../ && ls regulatory_alignments/* | wc -l
+#21941
 
 
 
