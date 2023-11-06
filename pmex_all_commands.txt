@@ -1261,7 +1261,6 @@ paste gene_names.txt ccount.txt > genes_N_count.txt
 
 sed -i 's/test_alignments\///g' genes_N_count.txt
 
-
 #remove genes with 0 variants
 awk '{if($2>1) {print $0}}' genes_N_count.txt | cut -f 1 > all_variant_genes.txt
 wc -l all_variant_genes.txt
@@ -1282,9 +1281,31 @@ cut -d'_' -f1 ../test_alignments/${line} > ./${line}
 done
 
 cd ../ && ls regulatory_alignments/* | wc -l
-#21941
+#8865
 
+cp ../11_RERconverge/RER_0D2D/11.1_Phangorn_tree_building.sh .
 
+mv 11.1_Phangorn_tree_building.sh 12.1_Phangorn_tree_building.sh
+
+# 12.2_Phangorn_tree_building.sh
+#!/bin/bash
+#SBATCH --job-name=Phangorn
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=Phangorn.%j.out # output file
+#SBATCH --error=Phangorn.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=4GB 
+
+module load rerconverge
+Rscript --vanilla /hb/home/rdekayne/11_RERconverge/test_run/Phangorn_tree_building.R
+
+touch ./Phangorn.done
+
+#run 
+module load rerconverge
+sbatch 12.2_Phangorn_tree_building.sh
 
 
 
