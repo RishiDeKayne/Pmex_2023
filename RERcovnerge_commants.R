@@ -1,5 +1,5 @@
 library(RERconverge)
-toyTrees=readTrees("/hb/home/rdekayne/11_RERconverge/RER_0D2D/NucGeneTrees.trees")
+toyTrees=readTrees("./NucGeneTrees.trees")
 
 mamRERw = getAllResiduals(toyTrees, transform = "sqrt", weighted = T, scale = T)
 
@@ -72,6 +72,7 @@ corMarine=correlateWithBinaryPhenotype(mamRERw, phenvMarine2, min.sp=10, min.pos
 head(corMarine[order(corMarine$P),])
 allvalues_test_DF <- as.data.frame(corMarine[order(corMarine$P),])
 write.table(allvalues_test_DF, "allvalues_RER.csv", sep = ',', quote = FALSE)
+write.table(allvalues_test_DF, "allvalues_enhancers_RER.csv", sep = ',', quote = FALSE)
 
 pdf(file="RER_plot6.pdf", width=8, height=8)
 plotRers(mamRERw,"gene_10262",phenv=phenvMarine2) 
