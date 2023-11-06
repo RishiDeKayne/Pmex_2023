@@ -1206,10 +1206,13 @@ cat test.txt | awk 'BEGIN{FS=";"} {print $8}' | sed 's/product=//g' | head
 #first need to concatenate promotor and enhancer files and make fake gff that can be used to extract the consensus sequences
 mkdir -p /hb/home/rdekayne/12_regulatory && cd /hb/home/rdekayne/12_regulatory
 
-mkdir tmp
-mkdir test_alignments
+split -l 5000 enhancers_rer_input.csv enhan_
+split -l 5000 promoters_rer_input.csv promo_
 
-# 12.1_get_consensus_fasta.sh
+mkdir tmp_enhan
+mkdir test_alignments_enhan
+
+# 12.1.1_get_consensus_fasta.sh
 #!/bin/bash
 #SBATCH --job-name=consensus
 #SBATCH --time=0-24:00:00
@@ -1222,20 +1225,20 @@ mkdir test_alignments
 
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 
-cat enhancers_rer_input.csv  | while read line
+cat enhan_aa | while read line
 do
 region=$( echo "$line" |cut -f1 )
 filename=$( echo "$line" |cut -f2 )
 
-bcftools view /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz --regions ${region} > ./tmp/${filename}.vcf
+bcftools view /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz --regions ${region} > ./tmp_enhan/${filename}.vcf
 
-python ../genomics_general/VCF_processing/parseVCF.py -i ./tmp/${filename}.vcf --skipIndels | bgzip > ./tmp/${filename}.vcf.geno.gz
+python ../genomics_general/VCF_processing/parseVCF.py -i ./tmp_enhan/${filename}.vcf --skipIndels | bgzip > ./tmp_enhan/${filename}.vcf.geno.gz
 
-python ../genomics_general/filterGenotypes.py -i ./tmp/${filename}.vcf.geno.gz --outputGenoFormat diplo | bgzip > ./tmp/${filename}.vcf.diplo.gz
+python ../genomics_general/filterGenotypes.py -i ./tmp_enhan/${filename}.vcf.geno.gz --outputGenoFormat diplo | bgzip > ./tmp_enhan/${filename}.vcf.diplo.gz
 
-python ../genomics_general/genoToSeq.py -g ./tmp/${filename}.vcf.diplo.gz -f fasta -s ./test_alignments/${filename}.fasta
+python ../genomics_general/genoToSeq.py -g ./tmp_enhan/${filename}.vcf.diplo.gz -f fasta -s ./test_alignments_enhan/${filename}.fasta
 
-rm ./tmp/${filename}*
+rm ./tmp_enhan/${filename}*
 
 done
 
@@ -1244,9 +1247,50 @@ touch ./mega_consensus_seq.done
 ##run
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 conda activate /hb/home/rdekayne/envs/general
-sbatch 12.1_get_consensus_fasta.sh
+sbatch 12.1.1_get_consensus_fasta.sh
 
-split -l 5000 enhancers_rer_input.csv
+mkdir tmp_promo
+mkdir test_alignments_promo
+
+# 12.2.1_get_consensus_fasta.sh
+#!/bin/bash
+#SBATCH --job-name=consensus
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=consensusp.%j.out # output file
+#SBATCH --error=consensusp.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=40GB 
+
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+
+cat promo_aa | while read line
+do
+region=$( echo "$line" |cut -f1 )
+filename=$( echo "$line" |cut -f2 )
+
+bcftools view /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz --regions ${region} > ./tmp_promo/${filename}.vcf
+
+python ../genomics_general/VCF_processing/parseVCF.py -i ./tmp_promo/${filename}.vcf --skipIndels | bgzip > ./tmp_promo/${filename}.vcf.geno.gz
+
+python ../genomics_general/filterGenotypes.py -i ./tmp_promo/${filename}.vcf.geno.gz --outputGenoFormat diplo | bgzip > ./tmp_promo/${filename}.vcf.diplo.gz
+
+python ../genomics_general/genoToSeq.py -g ./tmp_promo/${filename}.vcf.diplo.gz -f fasta -s ./test_alignments_promo/${filename}.fasta
+
+rm ./tmp_promo/${filename}*
+
+done
+
+touch ./mega_consensus_seq_p.done
+
+##run
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+conda activate /hb/home/rdekayne/envs/general
+sbatch 12.2.1_get_consensus_fasta.sh
+
+###now process the output from both the enhancer analysis and the promoter analysis:
+#enhancers:
 
 ls test_alignments/*.fasta > gene_names.txt
 
@@ -1287,7 +1331,7 @@ cp ../11_RERconverge/RER_0D2D/11.1_Phangorn_tree_building.sh .
 
 mv 11.1_Phangorn_tree_building.sh 12.1_Phangorn_tree_building.sh
 
-# 12.2_Phangorn_tree_building.sh
+# 12.3_Phangorn_tree_building.sh
 #!/bin/bash
 #SBATCH --job-name=Phangorn
 #SBATCH --time=0-24:00:00
