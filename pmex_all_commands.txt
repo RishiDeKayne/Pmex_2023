@@ -1198,8 +1198,12 @@ paste gene_name_from_gff.txt gene_product_from_gff.txt > gene_name_and_product_f
 
 cat test.txt | awk 'BEGIN{FS=";"} {print $8}' | sed 's/product=//g' | head
 
+module load miniconda3.9
+conda create -p /hb/home/rdekayne/envs/agat
+conda activate /hb/home/rdekayne/envs/agat
+mamba install agat
 
-agat_sp_extract_sequences.pl --gff /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -f /hb/home/rdekayne/ref_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna  -p -o protein.fa
+agat_sp_extract_sequences.pl --gff /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -f /hb/home/rdekayne/ref_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna  -p -o test.protein.fa
 
 ####################
 12.	REGULATORY
