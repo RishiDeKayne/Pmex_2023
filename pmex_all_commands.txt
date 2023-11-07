@@ -1203,7 +1203,10 @@ conda create -p /hb/home/rdekayne/envs/agat
 conda activate /hb/home/rdekayne/envs/agat
 mamba install agat
 
+cd /hb/home/rdekayne/11_RERconverge/RER_0D2D
 agat_sp_extract_sequences.pl --gff /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -f /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna -p -o test.protein.fa
+
+mv test.protein.fa RER.protein.fa
 
 ####################
 12.	REGULATORY
