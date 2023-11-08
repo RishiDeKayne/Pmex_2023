@@ -1407,6 +1407,13 @@ head(corMarine[order(corMarine$P),])
 allvalues_test_DF <- as.data.frame(corMarine[order(corMarine$P),])
 write.table(allvalues_test_DF, "allvalues_enhancers_RER.csv", sep = ',', quote = FALSE)
 
+#now do permutations
+all_taxa <- c("CR15-039", "CR15-031", "FL15-043", "FL15-032", "vs", "esperanza", "MX15-734", "MX15-627", "MX15-698", "MX15-706", "MX15-739", "MX15-650", "FL15-049", "FL15-025")
+
+
+
+
+
 cd ../RER_promo/
 
 cp /hb/home/rdekayne/11_RERconverge/test_run/Phangorn_tree_building.R .
