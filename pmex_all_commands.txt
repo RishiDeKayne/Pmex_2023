@@ -1381,6 +1381,32 @@ sed -i 's/11_RERconverge\/RER_0D2D/12_regulatory\/RER_enhan/g' 12.3.1_enhan_Phan
 module load rerconverge
 sbatch 12.3.1_enhan_Phangorn_tree_building.sh
 
+##Load R
+
+library(RERconverge)
+toyTrees=readTrees("./NucGeneTrees_enhan.trees")
+
+mamRERw = getAllResiduals(toyTrees, transform = "sqrt", weighted = T, scale = T)
+
+saveRDS(mamRERw, file="mamRERw.rds") 
+newmamRERw = readRDS("mamRERw.rds")
+
+multirers = returnRersAsTreesAll(toyTrees,mamRERw)
+write.tree(multirers, file='toyRERs.nwk', tree.names=TRUE)
+
+######################
+BINARY TRAIT ANALYSIS
+######################
+
+marineextantforeground = c("CR15-031", "FL15-032", "esperanza", "MX15-627", "MX15-706", "MX15-650", "FL15-025")
+
+phenvMarine2=foreground2Paths(marineextantforeground, toyTrees, clade="all")
+corMarine=correlateWithBinaryPhenotype(mamRERw, phenvMarine2, min.sp=10, min.pos=2,weighted="auto")
+
+head(corMarine[order(corMarine$P),])
+allvalues_test_DF <- as.data.frame(corMarine[order(corMarine$P),])
+write.table(allvalues_test_DF, "allvalues_enhancers_RER.csv", sep = ',', quote = FALSE)
+
 cd ../RER_promo/
 
 cp /hb/home/rdekayne/11_RERconverge/test_run/Phangorn_tree_building.R .
