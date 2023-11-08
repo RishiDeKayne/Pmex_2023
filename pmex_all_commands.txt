@@ -1377,6 +1377,7 @@ mv 11.1_Phangorn_tree_building.sh 12.3.1_enhan_Phangorn_tree_building.sh
 sed -i 's/11_RERconverge\/RER_0D2D/12_regulatory\/RER_enhan/g' 12.3.1_enhan_Phangorn_tree_building.sh
 
 #run 
+#issue with /hb/home/rdekayne/12_regulatory/RER_enhan/regulatory_enhan_alignments/NC_045676.1_3974227_3974377.fasta so removed
 module load rerconverge
 sbatch 12.3.1_enhan_Phangorn_tree_building.sh
 
