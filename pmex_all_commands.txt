@@ -1301,50 +1301,77 @@ sbatch 12.2.1_get_consensus_fasta.sh
 
 ###now process the output from both the enhancer analysis and the promoter analysis:
 #enhancers:
+#test_alignments_enhan
 
-ls test_alignments/*.fasta > gene_names.txt
+mkdir -p /hb/home/rdekayne/12_regulatory/RER_enhan && cd /hb/home/rdekayne/12_regulatory/RER_enhan
+ls ../test_alignments_enhan/*.fasta > enhan_gene_names.txt
 
-touch ccount.txt
-cat gene_names.txt | while read line 
+touch enhan_ccount.txt
+cat enhan_gene_names.txt | while read line 
 do
 #echo ${line}
-head -n2 ${line} | tail -n1 | wc -c >> ccount.txt
+head -n2 ${line} | tail -n1 | wc -c >> enhan_ccount.txt
 done 
 
-paste gene_names.txt ccount.txt > genes_N_count.txt
+paste enhan_gene_names.txt enhan_ccount.txt > enhan_genes_N_count.txt
 
-sed -i 's/test_alignments\///g' genes_N_count.txt
-
-#remove genes with 0 variants
-awk '{if($2>1) {print $0}}' genes_N_count.txt | cut -f 1 > all_variant_genes.txt
-wc -l all_variant_genes.txt
-#21941
+sed -i 's/..\/test_alignments_enhan\///g' enhan_genes_N_count.txt
 
 #now make set of gene alignments for full gene tree
-awk '{if($2>16) {print $0}}' genes_N_count.txt | cut -f 1 > RER_genes.txt
-wc -l RER_genes.txt
-#8865
+awk '{if($2>16) {print $0}}' enhan_genes_N_count.txt | cut -f 1 > RER_enhan_genes.txt
+wc -l RER_enhan_genes.txt
+#8692
 
-mkdir regulatory_alignments
+mkdir -p regulatory_enhan_alignments && cd regulatory_enhan_alignments
 
-cd regulatory_alignments
-
-cat ../RER_genes.txt | while read line 
+cat ../RER_enhan_genes.txt | while read line 
 do
-cut -d'_' -f1 ../test_alignments/${line} > ./${line}
+cut -d'_' -f1 ../../test_alignments_enhan/${line} > ./${line}
 done
 
-cd ../ && ls regulatory_alignments/* | wc -l
-#8865
+cd ../ && ls regulatory_enhan_alignments/* | wc -l
+#8692 
 
-cp ../11_RERconverge/RER_0D2D/11.1_Phangorn_tree_building.sh .
+#promoters:
+#test_alignments_promo
 
-mv 11.1_Phangorn_tree_building.sh 12.1_Phangorn_tree_building.sh
+mkdir -p /hb/home/rdekayne/12_regulatory/RER_promo && cd /hb/home/rdekayne/12_regulatory/RER_promo
+ls ../test_alignments_promo/*.fasta > promo_gene_names.txt
 
-mkdir RER_enhan
-mkdir RER_promo
+touch promo_ccount.txt
+cat promo_gene_names.txt | while read line 
+do
+#echo ${line}
+head -n2 ${line} | tail -n1 | wc -c >> promo_ccount.txt
+done 
 
-# 12.3_Phangorn_tree_building.sh
+paste promo_gene_names.txt promo_ccount.txt > promo_genes_N_count.txt
+
+sed -i 's/..\/test_alignments_promo\///g' promo_genes_N_count.txt
+
+#now make set of gene alignments for full gene tree
+awk '{if($2>16) {print $0}}' promo_genes_N_count.txt | cut -f 1 > RER_promo_genes.txt
+wc -l RER_promo_genes.txt
+#16927
+
+mkdir -p regulatory_promo_alignments && cd regulatory_promo_alignments
+
+cat ../RER_promo_genes.txt | while read line 
+do
+cut -d'_' -f1 ../../test_alignments_promo/${line} > ./${line}
+done
+
+cd ../ && ls regulatory_promo_alignments/* | wc -l
+#16927
+
+cd /hb/home/rdekayne/12_regulatory/RER_enhan
+
+cp ../../11_RERconverge/RER_0D2D/11.1_Phangorn_tree_building.sh .
+cp /hb/home/rdekayne/11_RERconverge/test_run/Phangorn_tree_building.R .
+
+mv 11.1_Phangorn_tree_building.sh 12.3.1_enhan_Phangorn_tree_building.sh
+
+# 12.3.1_enhan_Phangorn_tree_building.sh
 #!/bin/bash
 #SBATCH --job-name=Phangorn
 #SBATCH --time=0-24:00:00
