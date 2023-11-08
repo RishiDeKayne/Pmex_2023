@@ -1435,12 +1435,14 @@ for(i in 1:nrow(m)){
     permuted_DF_P <- as.data.frame(cbind(rownames(this_data), this_data$P))
   }
   if(i>1){
-    permuted_DF_Rho <- as.data.frame(cbind(permuted_DF_Rho, cbind(this_data$Rho)))
-    permuted_DF_P <- as.data.frame(cbind(permuted_DF_P, cbind(this_data$P)))
+    permuted_DF_Rho <- as.data.frame(cbind(permuted_DF_Rho, this_data$Rho))
+    permuted_DF_P <- as.data.frame(cbind(permuted_DF_P, this_data$P))
   }
 }
 
-head(permuted_DF)
+head(permuted_DF_Rho)
+head(permuted_DF_P)
+
 write.table(permuted_DF, "permuted_enhancers_RER.csv", sep = ',', quote = FALSE)
 
 
