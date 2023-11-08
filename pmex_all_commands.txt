@@ -1410,13 +1410,13 @@ write.table(allvalues_test_DF, "allvalues_enhancers_RER.csv", sep = ',', quote =
 #now do permutations
 n <- 7
 m <- expand.grid(rep(list(0:1),n))
-m <- m[rowSums(m)<7,]
 
 all_taxa <- c("CR15-039", "CR15-031", "FL15-043", "FL15-032", "vs", "esperanza", "MX15-734", "MX15-627", "MX15-698", "MX15-706", "MX15-739", "MX15-650", "FL15-049", "FL15-025")
 
-permuted_DF <- c()
+permuted_DF_Rho <- c()
+permuted_DF_P <- c()
 
-for(i in 1:127){
+for(i in 1:nrow(m)){
   numb <- i
   print(m[numb,])
   these_taxa <- c(all_taxa[1+as.numeric(m[numb,][1])], all_taxa[3+as.numeric(m[numb,][2])], all_taxa[5+as.numeric(m[numb,][3])], all_taxa[7+as.numeric(m[numb,][4])], all_taxa[9+as.numeric(m[numb,][5])], all_taxa[11+as.numeric(m[numb,][6])], all_taxa[13+as.numeric(m[numb,][7])])
@@ -1427,13 +1427,16 @@ for(i in 1:127){
   phenvMarine2=foreground2Paths(marineextantforeground, toyTrees, clade="all")
   corMarine=correlateWithBinaryPhenotype(mamRERw, phenvMarine2, min.sp=10, min.pos=2,weighted="auto")
   
-  head(corMarine[order(corMarine$P),])
-  this_data <- as.data.frame(corMarine[order(corMarine$P),])
+  print(head(corMarine))
+
+  this_data <- as.data.frame(corMarine)
   if(i==1){
-    permuted_DF <- as.data.frame(this_data)
+    permuted_DF_Rho <- as.data.frame(cbind(rownames(this_data), this_data$Rho))
+    permuted_DF_P <- as.data.frame(cbind(rownames(this_data), this_data$P))
   }
   if(i>1){
-    permuted_DF <- as.data.frame(cbind(permuted_DF, cbind(this_data$Rho, this_data$P)))
+    permuted_DF_Rho <- as.data.frame(cbind(permuted_DF_Rho, cbind(this_data$Rho)))
+    permuted_DF_P <- as.data.frame(cbind(permuted_DF_P, cbind(this_data$P)))
   }
 }
 
