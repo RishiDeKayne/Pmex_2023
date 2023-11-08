@@ -1366,30 +1366,34 @@ cd ../ && ls regulatory_promo_alignments/* | wc -l
 
 cd /hb/home/rdekayne/12_regulatory/RER_enhan
 
-cp ../../11_RERconverge/RER_0D2D/11.1_Phangorn_tree_building.sh .
 cp /hb/home/rdekayne/11_RERconverge/test_run/Phangorn_tree_building.R .
 
+sed -i 's/09_trees\/alignment_for_RERconverge2/12_regulatory\/RER_enhan\/regulatory_enhan_alignments/g' ./Phangorn_tree_building.R
+sed -i 's/11_RERconverge\/test_run\/NucGeneTrees.trees/12_regulatory\/RER_enhan\/NucGeneTrees_enhan\.trees/g' Phangorn_tree_building.R
+
+cp ../../11_RERconverge/RER_0D2D/11.1_Phangorn_tree_building.sh .
 mv 11.1_Phangorn_tree_building.sh 12.3.1_enhan_Phangorn_tree_building.sh
 
-# 12.3.1_enhan_Phangorn_tree_building.sh
-#!/bin/bash
-#SBATCH --job-name=Phangorn
-#SBATCH --time=0-24:00:00
-#SBATCH --partition=128x24
-#SBATCH --output=Phangorn.%j.out # output file
-#SBATCH --error=Phangorn.%j.err # error file
-#SBATCH -N 1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=4GB 
-
-module load rerconverge
-Rscript --vanilla /hb/home/rdekayne/11_RERconverge/test_run/Phangorn_tree_building.R
-
-touch ./Phangorn.done
+sed -i 's/11_RERconverge\/RER_0D2D/12_regulatory\/RER_enhan/g' 12.3.1_enhan_Phangorn_tree_building.sh
 
 #run 
 module load rerconverge
-sbatch 12.2_Phangorn_tree_building.sh
+sbatch 12.3.1_enhan_Phangorn_tree_building.sh
 
+cd ../RER_promo/
+
+cp /hb/home/rdekayne/11_RERconverge/test_run/Phangorn_tree_building.R .
+
+sed -i 's/09_trees\/alignment_for_RERconverge2/12_regulatory\/RER_promo\/regulatory_promo_alignments/g' ./Phangorn_tree_building.R
+sed -i 's/11_RERconverge\/test_run\/NucGeneTrees.trees/12_regulatory\/RER_promo\/NucGeneTrees_promo\.trees/g' Phangorn_tree_building.R
+
+cp ../../11_RERconverge/RER_0D2D/11.1_Phangorn_tree_building.sh .
+mv 11.1_Phangorn_tree_building.sh 12.3.2_promo_Phangorn_tree_building.sh
+
+sed -i 's/11_RERconverge\/RER_0D2D/12_regulatory\/RER_promo/g' 12.3.2_promo_Phangorn_tree_building.sh
+
+#run 
+module load rerconverge
+sbatch 12.3.2_promo_Phangorn_tree_building.sh
 
 
