@@ -1271,6 +1271,47 @@ agat_sp_extract_sequences.pl --gff /hb/home/rdekayne/08_consensus/filtered_w_lon
 
 mv test.protein.fa RER.protein.fa
 
+#run this on pannzer 2 web server to get GO terms
+
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+
+module load miniconda3.9
+conda create -p /hb/home/rdekayne/envs/orthofinder
+conda activate /hb/home/rdekayne/envs/orthofinder
+mamba install -c bioconda orthofinder
+pip install scipy
+
+wget https://github.com/davidemms/OrthoFinder/releases/latest/download/OrthoFinder.tar.gz
+tar xzvf OrthoFinder.tar.gz
+cd OrthoFinder/ 
+orthofinder -h
+
+mkdir -p proteomes && cd proteomes
+Downloads % scp Danio_rerio.GRCz11.pep.all.fa rdekayne@hb.ucsc.edu:/hb/home/rdekayne/11_RERconverge/RER_0D2D/proteomes
+for f in *fa ; do python ../../../orthofinder/OrthoFinder/tools/primary_transcript.py $f ; done
+
+module load miniconda3.9
+conda activate /hb/home/rdekayne/envs/orthofinder
+
+cp ../RER.protein.fa .
+mv RER.protein.fa primary_transcripts/
+
+orthofinder -f primary_transcripts/
+
+
+
+
+###############################
+#now to run GSEA 
+git clone https://github.com/z0on/GO_MWU
+
+#need to have go terms one gene per line - to converte GO.out from Pannzer 2 we need gene name in one column and go terms in the other
+awk -F'\t' '{ print $1,$3 }' ../regulatory/GO.out > GO.oneline.out
+
+#then use the included script to make the oneline file
+GO_MWU/nrify_GOtable.pl GO.oneline.out > GO.oneline.nonred.out
+
+
 ####################
 12.	REGULATORY
 ####################
