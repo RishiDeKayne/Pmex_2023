@@ -1287,7 +1287,7 @@ cd OrthoFinder/
 orthofinder -h
 
 mkdir -p proteomes && cd proteomes
-Downloads % scp Danio_rerio.GRCz11.pep.all.fa rdekayne@hb.ucsc.edu:/hb/home/rdekayne/11_RERconverge/RER_0D2D/proteomes
+# scp Danio_rerio.GRCz11.pep.all.fa rdekayne@hb.ucsc.edu:/hb/home/rdekayne/11_RERconverge/RER_0D2D/proteomes
 for f in *fa ; do python ../../../orthofinder/OrthoFinder/tools/primary_transcript.py $f ; done
 
 module load miniconda3.9
@@ -1300,16 +1300,21 @@ orthofinder -f primary_transcripts/
 
 #output in /hb/home/rdekayne/11_RERconverge/RER_0D2D/proteomes/primary_transcripts/OrthoFinder/Results_Nov15/
 
+cd /hb/home/rdekayne/11_RERconverge/RER_0D2D/proteomes2
+for f in Homo_sapiens.GRCh38.pep.all.fa ; do python ../../../orthofinder/OrthoFinder/tools/primary_transcript.py $f ; done
+orthofinder -f primary_transcripts/
+
+scp rdekayne@hb.ucsc.edu:/hb/home/rdekayne/11_RERconverge/RER_0D2D/proteomes2/primary_transcripts/OrthoFinder/Results_Nov15/Orthologues/Orthologues_RER.protein .
 
 ###############################
-#now to run GSEA 
-git clone https://github.com/z0on/GO_MWU
+#now to run GSEA - didnt work 
+#git clone https://github.com/z0on/GO_MWU
 
 #need to have go terms one gene per line - to converte GO.out from Pannzer 2 we need gene name in one column and go terms in the other
-awk -F'\t' '{ print $1,$3 }' ../regulatory/GO.out > GO.oneline.out
+#awk -F'\t' '{ print $1,$3 }' ../regulatory/GO.out > GO.oneline.out
 
 #then use the included script to make the oneline file
-GO_MWU/nrify_GOtable.pl GO.oneline.out > GO.oneline.nonred.out
+#GO_MWU/nrify_GOtable.pl GO.oneline.out > GO.oneline.nonred.out
 
 
 ####################
