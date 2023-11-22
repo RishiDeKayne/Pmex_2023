@@ -1640,3 +1640,37 @@ write.table(permuted_DF_Rho, "permuted_promoters_RHO_RER.csv", sep = ',', quote 
 write.table(permuted_DF_P, "permuted_promoters_P_RER.csv", sep = ',', quote = FALSE)
 
 
+####################
+12.	BLAST
+####################
+#want to blast full x. helleri protien set to human db
+
+mkdir -p 13_blast && cd 13_blast
+
+#get full xhel set
+module load miniconda3.9
+conda activate /hb/home/rdekayne/envs/agat
+
+agat_sp_extract_sequences.pl --gff /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.gff -f /hb/groups/kelley_lab/reference_genomes/GCF_003331165.1_Xiphophorus_hellerii-4.1_genomic.fna -p -o ALL.xhel.protein.fa
+
+module load blast/blast-2.7.1
+
+#human reference proteome: UP000005640
+#https://www.uniprot.org/proteomes/UP000005640
+
+makeblastdb -in UP000005640_9606.fasta -dbtype prot
+
+cp /hb/home/rdekayne/11_RERconverge/RER_0D2D/proteomes/primary_transcripts/RER.protein.fa .
+
+salloc --partition=Instruction --time=04:00:00 --mem=500M --ntasks=1 --cpus-per-task=1
+export | grep SLURM
+ssh $SLURM_NODELIST
+module load blast/blast-2.7.1
+
+blastp \
+-query ALL.xhel.protein.fa \
+-db UP000005640_9606.fasta \
+-out xhel_human_blastp_results.tab \
+-max_target_seqs 10 \
+-max_hsps 1 \
+-outfmt 6
