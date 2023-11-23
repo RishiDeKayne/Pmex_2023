@@ -1667,6 +1667,20 @@ export | grep SLURM
 ssh $SLURM_NODELIST
 module load blast/blast-2.7.1
 
+# 13.1_blastp.sh
+
+#!/bin/bash
+#SBATCH --job-name=blast
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=blastp.%j.out # output file
+#SBATCH --error=blastp.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=40GB 
+
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture blast/blast-2.7.1
+
 blastp \
 -query ALL.xhel.protein.fa \
 -db UP000005640_9606.fasta \
@@ -1674,3 +1688,9 @@ blastp \
 -max_target_seqs 10 \
 -max_hsps 1 \
 -outfmt 6
+
+touch blastp.done
+
+##run
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+sbatch 13.1_blastp.sh
