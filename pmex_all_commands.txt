@@ -1191,6 +1191,15 @@ mamRERw = getAllResiduals(toyTrees, transform = "sqrt", weighted = T, scale = T)
 saveRDS(mamRERw, file="mamRERw.rds") 
 newmamRERw = readRDS("mamRERw.rds")
 
+#visualize RERs along branches as a heatmap
+pdf(file="7301.gene.pdf", width=10, height=10)
+newgene_7301rers = treePlotRers(treesObj=toyTrees, rermat=mamRERw, index="gene_7301", type="c", nlevels=9, figwid=2)
+dev.off()
+
+pdf(file="10262.gene.pdf", width=10, height=10)
+newgene_10262rers = treePlotRers(treesObj=toyTrees, rermat=mamRERw, index="gene_10262", type="c", nlevels=9, figwid=2)
+dev.off()
+
 multirers = returnRersAsTreesAll(toyTrees,mamRERw)
 write.tree(multirers, file='toyRERs.nwk', tree.names=TRUE)
 
