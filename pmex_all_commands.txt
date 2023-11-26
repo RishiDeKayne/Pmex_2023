@@ -1694,3 +1694,11 @@ touch blastp.done
 ##run
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 sbatch 13.1_blastp.sh
+
+#sort the file
+export LC_ALL=C LC_LANG=C; sort -k1,1 -k12,12gr -k11,11g -k3,3gr xhel_human_blastp_results.tab > xhel_human_blastp_results.sorted.tab
+
+#top hit per query
+for next in $(cut -f1 xhel_human_blastp_results.sorted.tab | sort -u); do grep -w -m 1 "$next" xhel_human_blastp_results.sorted.tab; done > xhel_human_blastp_results.sorted.top1.tab
+
+
