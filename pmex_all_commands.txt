@@ -1378,7 +1378,7 @@ conda activate /hb/home/rdekayne/envs/general
 sbatch 12.1.1_get_consensus_fasta.sh
 
 mkdir tmp_promo
-mkdir test_alignments_promo
+mkdir test_alignments_promo2
 
 # 12.2.1_get_consensus_fasta.sh
 #!/bin/bash
