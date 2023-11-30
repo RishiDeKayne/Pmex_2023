@@ -1487,7 +1487,7 @@ cd /hb/home/rdekayne/12_regulatory/RER_enhan
 cp /hb/home/rdekayne/11_RERconverge/RER_0D2D/Phangorn_tree_building.R .
 
 sed -i 's/08_consensus\/0D2D\/RER_gene_alignments/12_regulatory\/RER_enhan\/regulatory_enhan_alignments/g' ./Phangorn_tree_building.R
-sed -i 's/11_RERconverge\/RER_0D2D\/NucGeneTrees.trees/12_regulatory\/RER_enhan\/NucGeneTrees_promo\.trees/g' Phangorn_tree_building.R
+sed -i 's/11_RERconverge\/RER_0D2D\/NucGeneTrees.trees/12_regulatory\/RER_enhan\/NucGeneTrees_enhan\.trees/g' Phangorn_tree_building.R
 
 cp ../../11_RERconverge/RER_0D2D/11.1_Phangorn_tree_building.sh .
 mv 11.1_Phangorn_tree_building.sh 12.3.1_enhan_Phangorn_tree_building.sh
