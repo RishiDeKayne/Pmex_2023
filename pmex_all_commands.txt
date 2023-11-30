@@ -1454,7 +1454,7 @@ cd ../ && ls regulatory_enhan_alignments/* | wc -l
 #test_alignments_promo
 
 mkdir -p /hb/home/rdekayne/12_regulatory/RER_promo && cd /hb/home/rdekayne/12_regulatory/RER_promo
-ls ../test_alignments_promo/*.fasta > promo_gene_names.txt
+ls ../test_alignments_promo2/*.fasta > promo_gene_names.txt
 
 touch promo_ccount.txt
 cat promo_gene_names.txt | while read line 
@@ -1465,29 +1465,29 @@ done
 
 paste promo_gene_names.txt promo_ccount.txt > promo_genes_N_count.txt
 
-sed -i 's/..\/test_alignments_promo\///g' promo_genes_N_count.txt
+sed -i 's/..\/test_alignments_promo2\///g' promo_genes_N_count.txt
 
 #now make set of gene alignments for full gene tree
 awk '{if($2>16) {print $0}}' promo_genes_N_count.txt | cut -f 1 > RER_promo_genes.txt
 wc -l RER_promo_genes.txt
-#16927
+#15655
 
 mkdir -p regulatory_promo_alignments && cd regulatory_promo_alignments
 
 cat ../RER_promo_genes.txt | while read line 
 do
-cut -d'_' -f1 ../../test_alignments_promo/${line} > ./${line}
+cut -d'_' -f1 ../../test_alignments_promo2/${line} > ./${line}
 done
 
 cd ../ && ls regulatory_promo_alignments/* | wc -l
-#16927
+#15655
 
 cd /hb/home/rdekayne/12_regulatory/RER_enhan
 
-cp /hb/home/rdekayne/11_RERconverge/test_run/Phangorn_tree_building.R .
+cp /hb/home/rdekayne/11_RERconverge/RER_0D2D/Phangorn_tree_building.R .
 
-sed -i 's/09_trees\/alignment_for_RERconverge2/12_regulatory\/RER_enhan\/regulatory_enhan_alignments/g' ./Phangorn_tree_building.R
-sed -i 's/11_RERconverge\/test_run\/NucGeneTrees.trees/12_regulatory\/RER_enhan\/NucGeneTrees_enhan\.trees/g' Phangorn_tree_building.R
+sed -i 's/08_consensus\/0D2D\/RER_gene_alignments/12_regulatory\/RER_enhan\/regulatory_enhan_alignments/g' ./Phangorn_tree_building.R
+sed -i 's/11_RERconverge\/RER_0D2D\/NucGeneTrees.trees/12_regulatory\/RER_enhan\/NucGeneTrees_promo\.trees/g' Phangorn_tree_building.R
 
 cp ../../11_RERconverge/RER_0D2D/11.1_Phangorn_tree_building.sh .
 mv 11.1_Phangorn_tree_building.sh 12.3.1_enhan_Phangorn_tree_building.sh
@@ -1569,10 +1569,10 @@ write.table(permuted_DF_P, "permuted_enhancers_P_RER.csv", sep = ',', quote = FA
 
 cd ../RER_promo/
 
-cp /hb/home/rdekayne/11_RERconverge/test_run/Phangorn_tree_building.R .
+cp /hb/home/rdekayne/11_RERconverge/RER_0D2D/Phangorn_tree_building.R .
 
-sed -i 's/09_trees\/alignment_for_RERconverge2/12_regulatory\/RER_promo\/regulatory_promo_alignments/g' ./Phangorn_tree_building.R
-sed -i 's/11_RERconverge\/test_run\/NucGeneTrees.trees/12_regulatory\/RER_promo\/NucGeneTrees_promo\.trees/g' Phangorn_tree_building.R
+sed -i 's/08_consensus\/0D2D\/RER_gene_alignments/12_regulatory\/RER_promo\/regulatory_promo_alignments/g' ./Phangorn_tree_building.R
+sed -i 's/11_RERconverge\/RER_0D2D\/NucGeneTrees.trees/12_regulatory\/RER_promo\/NucGeneTrees_promo\.trees/g' Phangorn_tree_building.R
 
 cp ../../11_RERconverge/RER_0D2D/11.1_Phangorn_tree_building.sh .
 mv 11.1_Phangorn_tree_building.sh 12.3.2_promo_Phangorn_tree_building.sh
