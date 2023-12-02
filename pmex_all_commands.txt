@@ -1728,7 +1728,7 @@ mkdir -p 14_SPP_TREE && cd 14_SPP_TREE
 
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 
-#python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz --skipIndels | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.consensus.geno.gz
+python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz --skipIndels | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.consensus.geno.gz
 
 touch /hb/home/rdekayne/14_SPP_TREE/geno.done
 
@@ -1738,7 +1738,7 @@ conda activate /hb/home/rdekayne/envs/general
 sbatch 14.1_get_geno.sh
 
 #use fixed gff
-/hb/08_consensus/filtered_w_longest_scaf.xhel.gff
+/hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff
 
 #do file conversions for input into cds script
 cp ../04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.consensus.geno.gz ./consensus.geno.gz
