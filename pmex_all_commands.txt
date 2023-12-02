@@ -1710,4 +1710,146 @@ export LC_ALL=C LC_LANG=C; sort -k1,1 -k12,12gr -k11,11g -k3,3gr xhel_human_blas
 #top hit per query
 for next in $(cut -f1 xhel_human_blastp_results.sorted.tab | sort -u); do grep -w -m 1 "$next" xhel_human_blastp_results.sorted.tab; done > xhel_human_blastp_results.sorted.top1.tab
 
+#################
+#     14 SPP_TREE
+#################
+mkdir -p 14_SPP_TREE && cd 14_SPP_TREE
+# 14.1_get_geno.sh
 
+#!/bin/bash
+#SBATCH --job-name=geno
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=geno.%j.out # output file
+#SBATCH --error=geno.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=40GB 
+
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+
+#python ../genomics_general/VCF_processing/parseVCF.py -i /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.vcf.gz --skipIndels | bgzip > /hb/home/rdekayne/04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.consensus.geno.gz
+
+touch /hb/home/rdekayne/14_SPP_TREE/geno.done
+
+##run
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+conda activate /hb/home/rdekayne/envs/general
+sbatch 14.1_get_geno.sh
+
+#use fixed gff
+/hb/08_consensus/filtered_w_longest_scaf.xhel.gff
+
+#do file conversions for input into cds script
+cp ../04_H2S_genotyping/concat_vcfs/H2S_14_mindepth7_minqual30_mac1_AN28.renamed.consensus.geno.gz ./consensus.geno.gz
+
+tabix -p vcf consensus.geno.gz
+
+python ../genomics_general/filterGenotypes.py --threads 10 -i consensus.geno.gz --outputGenoFormat diplo | bgzip > consensus.diplo.gz
+
+tabix -p vcf consensus.diplo.gz
+
+# 14.2_get_consensus_fasta.sh
+#!/bin/bash
+#SBATCH --job-name=consensus
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=consensus.%j.out # output file
+#SBATCH --error=consensus.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=40GB 
+
+#python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -g /hb/home/rdekayne/14_SPP_TREE/consensus.diplo.gz --ploidy 1 --outFormat fasta -o /hb/home/rdekayne/14_SPP_TREE/consensus.diplo.fasta.gz
+
+touch ./consensus_seq.done
+
+##run
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+conda activate /hb/home/rdekayne/envs/general
+sbatch 14.2_get_consensus_fasta.sh
+
+# 14.3_get_consensus_phylip.sh
+#!/bin/bash
+#SBATCH --job-name=consensus
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=consensus2.%j.out # output file
+#SBATCH --error=consensus2.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=40GB 
+
+python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -g /hb/home/rdekayne/14_SPP_TREE/consensus.diplo.gz --ploidy 1 --outFormat phylip -o /hb/home/rdekayne/14_SPP_TREE/consensus.diplo.trees
+
+touch ./consensus_seq_phylip.done
+
+##run
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+conda activate /hb/home/rdekayne/envs/general
+sbatch 14.3_get_consensus_phylip.sh
+
+#want to make a species tree first using astral
+zcat /hb/home/rdekayne/14_SPP_TREE/consensus.diplo.fasta.gz | awk -v RS= '{close("gene_" i ".txt"); i++}{print > ("gene_" i ".txt")}'
+
+mkdir -p gene_alignments
+
+mv *.txt gene_alignments/
+ls gene_alignments/*.txt > gene_names.txt
+
+touch ccount.txt && touch ncount.txt
+cat gene_names.txt | while read line 
+do
+echo ${line}
+head -n2 ${line} | tail -n1 | wc -c >> ccount.txt
+head -n2 ${line} | tail -n1 | tr -cd 'N' | wc -c >> ncount.txt
+done 
+
+paste gene_names.txt ncount.txt ccount.txt > genes_N_count.txt
+
+#remove genes with 0 variants
+#get distribution of variants per genome
+awk '{if(($2) < $3) {print $0, ($3-$2-1)}}' genes_N_count.txt > vars.txt
+wc -l vars.txt
+#23732
+
+awk '{if($4>0) {print $0}}' vars.txt | cut -f 1 > all_variant_genes.txt
+wc -l all_variant_genes.txt
+#21941
+
+mkdir astral_gene_alignments
+
+sed 's/gene_alignments\///g' all_variant_genes.txt > all_variant_genes2.txt
+
+cd astral_gene_alignments
+
+cat ../all_variant_genes2.txt | while read line 
+do
+cut -d'_' -f1 ../gene_alignments/${line} > ./${line}
+done
+
+cd ../ && ls astral_gene_alignments/* | wc -l
+#
+
+# 14.4_get_main_tree_all_genes.sh
+#!/bin/bash
+#SBATCH --job-name=tree
+#SBATCH --time=0-24:00:00
+#SBATCH --partition=128x24
+#SBATCH --output=tree.%j.out # output file
+#SBATCH --error=tree.%j.err # error file
+#SBATCH -N 1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=40GB 
+
+module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
+
+python ../../ParGenes/pargenes/pargenes.py -a /hb/home/rdekayne/14_SPP_TREE/astral_gene_alignments -o /hb/home/rdekayne/14_SPP_TREE/all_genes_run_0D2D_out --cores 64 -d nt -m --job-failure-fatal --use-astral
+
+touch spp_tree_all_genes.done
+
+##run
+sbatch 9.3_get_main_tree_all_genes_0D2D.sh
+
+cp /hb/home/rdekayne/09_trees/0D2D/all_genes_run_0D2D_out/astral_run/output_species_tree.newick /hb/home/rdekayne/09_trees/0D2D/output_species_tree_all_genes.newick
+./rename_tree.sh output_species_tree_all_genes.newick
