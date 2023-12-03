@@ -1795,7 +1795,7 @@ wc -l vars.txt
 
 awk '{if($4>0) {print $0}}' vars.txt | cut -f 1 > all_variant_genes.txt
 wc -l all_variant_genes.txt
-#21941
+#21991
 
 mkdir astral_gene_alignments
 
@@ -1809,9 +1809,9 @@ cut -d'_' -f1 ../gene_alignments/${line} > ./${line}
 done
 
 cd ../ && ls astral_gene_alignments/* | wc -l
-#
+#21991
 
-# 14.4_get_main_tree_all_genes.sh
+# 14.3_get_main_tree_all_genes.sh
 #!/bin/bash
 #SBATCH --job-name=tree
 #SBATCH --time=0-24:00:00
@@ -1824,12 +1824,12 @@ cd ../ && ls astral_gene_alignments/* | wc -l
 
 module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
 
-python ../../ParGenes/pargenes/pargenes.py -a /hb/home/rdekayne/14_SPP_TREE/astral_gene_alignments -o /hb/home/rdekayne/14_SPP_TREE/all_genes_run_0D2D_out --cores 64 -d nt -m --job-failure-fatal --use-astral
+python ../ParGenes/pargenes/pargenes.py -a /hb/home/rdekayne/14_SPP_TREE/astral_gene_alignments -o /hb/home/rdekayne/14_SPP_TREE/all_genes_run_out --cores 64 -d nt -m --job-failure-fatal --use-astral
 
 touch spp_tree_all_genes.done
 
 ##run
-sbatch 9.3_get_main_tree_all_genes_0D2D.sh
+sbatch 14.3_get_main_tree_all_genes.sh
 
 cp /hb/home/rdekayne/09_trees/0D2D/all_genes_run_0D2D_out/astral_run/output_species_tree.newick /hb/home/rdekayne/09_trees/0D2D/output_species_tree_all_genes.newick
 ./rename_tree.sh output_species_tree_all_genes.newick
