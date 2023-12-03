@@ -1769,26 +1769,6 @@ module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard
 conda activate /hb/home/rdekayne/envs/general
 sbatch 14.2_get_consensus_fasta.sh
 
-# 14.3_get_consensus_phylip.sh
-#!/bin/bash
-#SBATCH --job-name=consensus
-#SBATCH --time=0-24:00:00
-#SBATCH --partition=128x24
-#SBATCH --output=consensus2.%j.out # output file
-#SBATCH --error=consensus2.%j.err # error file
-#SBATCH -N 1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=40GB 
-
-python ../genomics_general/extractCDSAlignments.py --annotation /hb/home/rdekayne/08_consensus/filtered_w_longest_scaf.xhel.gff -g /hb/home/rdekayne/14_SPP_TREE/consensus.diplo.gz --ploidy 1 --outFormat phylip -o /hb/home/rdekayne/14_SPP_TREE/consensus.diplo.trees
-
-touch ./consensus_seq_phylip.done
-
-##run
-module load hb hb-gnu htslib/htslib-1.17 bwa-mem2/bwa-mem2-2.2.1 sambamba picard mosdepth samtools bcftools plink admixture
-conda activate /hb/home/rdekayne/envs/general
-sbatch 14.3_get_consensus_phylip.sh
-
 #want to make a species tree first using astral
 zcat /hb/home/rdekayne/14_SPP_TREE/consensus.diplo.fasta.gz | awk -v RS= '{close("gene_" i ".txt"); i++}{print > ("gene_" i ".txt")}'
 
