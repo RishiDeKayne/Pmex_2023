@@ -1831,5 +1831,7 @@ touch spp_tree_all_genes.done
 ##run
 sbatch 14.3_get_main_tree_all_genes.sh
 
-cp /hb/home/rdekayne/09_trees/0D2D/all_genes_run_0D2D_out/astral_run/output_species_tree.newick /hb/home/rdekayne/09_trees/0D2D/output_species_tree_all_genes.newick
-./rename_tree.sh output_species_tree_all_genes.newick
+#/hb/home/rdekayne/14_SPP_TREE/all_genes_run_out/astral_run/output_species_tree.newick 
+##final tree 
+(MX15-627,(MX15-734,(((MX15-706,MX15-698)1:3.317559746479158,((FL15-049,FL15-025)1:2.185863612463782,(MX15-650,MX15-739)1:0.42883480509971506)1:2.5950159412430422)1:0.2717517145091955,((CR15-031,CR15-039)1:3.2696745939783423,((FL15-043,FL15-032)1:2.208420613733077,(vs,esperanza)1:1.7730915877528486)1:1.9351398460512297)1:2.900536294688129)1:3.0523799368871):0.0); 
+
